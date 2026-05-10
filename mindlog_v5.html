@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MindLog</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@300;400&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&display=swap');
+:root{
+  --g50:#f0faf4;--g100:#d6f0e0;--g200:#aaddc2;--g300:#6dc49c;--g400:#3aaa77;--g500:#1f8f5e;--g600:#157249;--g700:#0e5535;--g800:#083d25;
+  --n0:#fff;--n50:#f8f9f8;--n100:#eef0ed;--n200:#dde0db;--n300:#bcc0b9;--n400:#8f9490;--n500:#646a65;--n600:#434845;--n700:#2b2f2c;
+  --bg:var(--n50);--surface:var(--n0);--border:var(--n200);--border2:var(--n100);
+  --text:var(--n700);--text2:var(--n500);--text3:var(--n400);
+  --accent:var(--g500);--accent-bg:var(--g50);--accent-bd:var(--g200);
+  --morning:#e07c2a;--morning-bg:#fff7ee;--morning-bd:#f5d4b0;
+  --evening:#2a7ec0;--evening-bg:#eff6ff;--evening-bd:#b3d4f0;
+  --fact-c:#2a7ec0;--interp-c:#9b4dca;--interp-bg:#f8f0ff;--interp-bd:#d8b4f0;
+  --ai:#7c3aed;--ai-bg:#faf5ff;--ai-bd:#ddd6fe;--ai-text:#5b21b6;
+  --session:#0f766e;--session-bg:#f0fdfa;--session-bd:#99f6e4;
+  --r:6px;--rl:10px;--rll:14px;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh2:0 4px 12px rgba(0,0,0,.07),0 1px 3px rgba(0,0,0,.05);
+  --sh3:0 12px 40px rgba(0,0,0,.10),0 2px 8px rgba(0,0,0,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--n200);border-radius:3px;}
+
+/* ── LOGIN ── */
+#screen-login{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(160deg,var(--g50) 0%,var(--n50) 50%,#f0f0ff 100%);}
+.login-wrap{width:100%;max-width:400px;padding:20px;}
+.login-logo-wrap{text-align:center;margin-bottom:32px;}
+.login-logomark{display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--g500),var(--g300));margin-bottom:12px;box-shadow:0 8px 24px rgba(31,143,94,.3);}
+.login-logomark svg{width:28px;height:28px;fill:white;}
+.login-brand{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;color:var(--g700);}
+.login-tagline{font-size:12px;color:var(--text3);margin-top:2px;}
+.login-card{background:var(--surface);border-radius:var(--rll);padding:32px;box-shadow:var(--sh3);border:1px solid var(--border2);}
+.login-card-title{font-size:17px;font-weight:700;margin-bottom:22px;}
+.lf{margin-bottom:14px;}
+.lf-label{display:block;font-size:11px;font-weight:500;color:var(--text2);margin-bottom:5px;letter-spacing:.03em;}
+.lf-input{width:100%;padding:10px 13px;background:var(--n50);border:1.5px solid var(--border);border-radius:var(--r);color:var(--text);font-size:14px;font-family:'Noto Sans JP',sans-serif;transition:border-color .18s;}
+.lf-input:focus{outline:none;border-color:var(--accent);background:var(--surface);}
+.login-error{font-size:12px;color:#c0392b;margin-top:6px;display:none;padding:7px 10px;background:#fff5f5;border-radius:var(--r);border:1px solid #fcccc8;}
+.login-submit{width:100%;padding:12px;margin-top:6px;background:var(--g500);color:white;border:none;border-radius:var(--r);font-family:'Noto Sans JP',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background .18s;}
+.login-submit:hover{background:var(--g600);}
+.demo-section{margin-top:22px;padding-top:18px;border-top:1px solid var(--border2);}
+.demo-title{font-size:11px;color:var(--text3);text-align:center;margin-bottom:10px;}
+.demo-list{display:flex;flex-direction:column;gap:7px;}
+.demo-btn{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;background:var(--n50);border:1px solid var(--border);border-radius:var(--r);color:var(--text2);font-size:13px;cursor:pointer;transition:all .18s;}
+.demo-btn:hover{background:var(--accent-bg);border-color:var(--accent-bd);color:var(--text);}
+.demo-pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.05em;}
+.pill-coach{background:var(--g100);color:var(--g700);}
+.pill-client{background:var(--morning-bg);color:var(--morning);}
+
+/* ── APP SHELL ── */
+#screen-app{display:none;}
+.app-shell{display:flex;min-height:100vh;}
+.sidebar{width:230px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.sb-header{padding:20px 20px 16px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:10px;}
+.sb-logomark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--g500),var(--g300));display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sb-logomark svg{width:17px;height:17px;fill:white;}
+.sb-brand{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--g700);}
+.sb-user{padding:14px 16px;margin:10px 10px 0;background:var(--accent-bg);border:1px solid var(--accent-bd);border-radius:var(--rl);}
+.sb-user-name{font-size:14px;font-weight:700;}
+.sb-user-role{font-size:11px;font-weight:500;margin-top:2px;}
+.role-coach{color:var(--g600);}
+.role-client{color:var(--morning);}
+.sb-nav{flex:1;padding:14px 0;}
+.sb-section{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);padding:12px 20px 5px;}
+.sb-item{display:flex;align-items:center;gap:9px;padding:9px 20px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .16s;border-left:2.5px solid transparent;margin:1px 0;}
+.sb-item:hover{color:var(--text);background:var(--n50);}
+.sb-item.active{color:var(--accent);font-weight:700;background:var(--accent-bg);border-left-color:var(--accent);}
+.sb-bottom{padding:12px 10px;border-top:1px solid var(--border2);}
+.logout-btn{width:100%;padding:9px;border-radius:var(--r);background:transparent;border:1px solid var(--border);color:var(--text3);font-size:12px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:all .18s;}
+.logout-btn:hover{border-color:#c0392b;color:#c0392b;background:#fff5f5;}
+.main{flex:1;overflow-y:auto;min-width:0;}
+.main-inner{padding:28px 32px 80px;max-width:960px;}
+
+/* ── COMMON ── */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+.ph-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;}
+.ph-sub{font-size:12px;color:var(--text3);margin-top:3px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);box-shadow:var(--sh);margin-bottom:16px;overflow:hidden;}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--border2);background:var(--n50);}
+.card-head-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;}
+.card-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.card-body{padding:18px 20px;}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.badge-morning{background:var(--morning-bg);color:var(--morning);border:1px solid var(--morning-bd);}
+.badge-evening{background:var(--evening-bg);color:var(--evening);border:1px solid var(--evening-bd);}
+.badge-done{background:var(--g100);color:var(--g600);border:1px solid var(--g200);}
+.badge-session{background:var(--session-bg);color:var(--session);border:1px solid var(--session-bd);}
+.theme-box{background:linear-gradient(135deg,var(--g50) 0%,#fff 100%);border:1px solid var(--accent-bd);border-radius:var(--rl);padding:16px 18px;margin-bottom:20px;display:flex;align-items:flex-start;gap:12px;}
+.theme-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--g500),var(--g300));display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.theme-icon svg{width:18px;height:18px;fill:white;}
+.theme-label{font-size:11px;font-weight:700;color:var(--g600);letter-spacing:.05em;margin-bottom:4px;}
+.theme-text{font-size:15px;font-weight:700;color:var(--g800);line-height:1.4;}
+.field{margin-bottom:16px;}
+.fl{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.05em;color:var(--text2);margin-bottom:5px;}
+.fl-hint{font-size:12px;color:var(--text3);margin-bottom:7px;line-height:1.5;}
+textarea,input[type=text]{width:100%;padding:10px 13px;background:var(--n50);border:1.5px solid var(--border);border-radius:var(--r);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:13px;line-height:1.8;resize:vertical;transition:border-color .18s;}
+textarea:focus,input[type=text]:focus{outline:none;background:var(--surface);border-color:var(--accent);}
+textarea.f-morning:focus{border-color:var(--morning);}
+textarea.f-fact:focus{border-color:var(--fact-c);}
+textarea.f-interp:focus{border-color:var(--interp-c);}
+textarea.f-session:focus{border-color:var(--session);}
+.mood-row{display:flex;align-items:center;gap:12px;padding:13px 0 4px;border-top:1px solid var(--border2);}
+.mood-label-txt{font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;}
+.mood-emoji{font-size:22px;width:28px;text-align:center;}
+.mood-track{flex:1;display:flex;align-items:center;gap:8px;}
+input[type=range]{flex:1;-webkit-appearance:none;height:5px;background:var(--n200);border-radius:3px;cursor:pointer;border:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 0 0 3px rgba(31,143,94,.15);transition:transform .15s;}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15);}
+.mood-val{font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);width:32px;text-align:center;}
+.divider{height:1px;background:var(--border2);margin:14px 0;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border-radius:var(--r);font-family:'Noto Sans JP',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .18s;letter-spacing:.02em;}
+.btn-primary{background:var(--g500);color:white;}
+.btn-primary:hover{background:var(--g600);}
+.btn-morning{background:var(--morning);color:white;}
+.btn-morning:hover{filter:brightness(.9);}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);}
+.btn-ghost:hover{background:var(--n50);border-color:var(--n300);}
+.btn-ai{background:var(--ai);color:white;}
+.btn-ai:hover{background:#6d28d9;}
+.btn-session{background:var(--session);color:white;}
+.btn-session:hover{background:#0d6460;}
+.btn-sm{padding:6px 13px;font-size:12px;}
+.btn-xs{padding:4px 10px;font-size:11px;}
+.btn-row{display:flex;justify-content:flex-end;gap:8px;padding-top:10px;}
+.sec-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.sec-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);white-space:nowrap;}
+.sec-line{flex:1;height:1px;background:var(--border2);}
+.mini-bar{width:60px;height:4px;background:var(--n200);border-radius:2px;overflow:hidden;}
+.mini-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--g300),var(--g500));}
+.data-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text3);padding-top:8px;border-top:1px solid var(--border2);margin-top:8px;flex-wrap:wrap;}
+.es{background:var(--n50);border:1px solid var(--border2);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;}
+.es-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;}
+.es-text{font-size:13px;line-height:1.8;color:var(--text2);}
+.ec{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:10px;box-shadow:var(--sh);overflow:hidden;transition:box-shadow .18s;}
+.ec:hover{box-shadow:var(--sh2);}
+.ec-head{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;cursor:pointer;transition:background .16s;}
+.ec-head:hover{background:var(--n50);}
+.ec-hl{display:flex;align-items:center;gap:10px;}
+.ec-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-m{background:var(--morning);}
+.dot-e{background:var(--evening);}
+.dot-b{background:var(--accent);}
+.dot-s{background:var(--session);}
+.ec-date{font-size:13px;font-weight:700;}
+.ec-tags{display:flex;gap:5px;}
+.ec-body{padding:6px 16px 16px;display:grid;gap:8px;}
+.ec.collapsed .ec-body{display:none;}
+.client-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.ctab{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:500;background:var(--surface);border:1.5px solid var(--border);color:var(--text2);cursor:pointer;transition:all .18s;}
+.ctab:hover{border-color:var(--accent-bd);color:var(--text);}
+.ctab.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent);font-weight:700;}
+.privacy-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;margin-bottom:18px;background:var(--g50);border:1px solid var(--g200);border-radius:var(--r);font-size:12px;color:var(--g600);font-weight:500;}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:14px 16px;box-shadow:var(--sh);}
+.stat-label{font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:500;}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;line-height:1;color:var(--accent);}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:4px;}
+.cycle-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
+.cyc{padding:5px 13px;border-radius:20px;font-family:'DM Mono',monospace;font-size:11px;background:var(--surface);border:1.5px solid var(--border);color:var(--text2);cursor:pointer;transition:all .18s;}
+.cyc.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent);font-weight:700;}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:20px 22px;margin-bottom:16px;box-shadow:var(--sh);}
+.chart-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.chart-ttl{font-size:12px;font-weight:700;color:var(--text2);letter-spacing:.04em;}
+.chart-legend{display:flex;gap:14px;}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3);}
+.leg-dot{width:8px;height:8px;border-radius:50%;}
+canvas{display:block;width:100%;}
+
+/* ── AI PANEL ── */
+.ai-panel{background:var(--ai-bg);border:1.5px solid var(--ai-bd);border-radius:var(--rl);margin-bottom:20px;overflow:hidden;box-shadow:var(--sh);}
+.ai-panel-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(135deg,#ede9fe,var(--ai-bg));border-bottom:1px solid var(--ai-bd);}
+.ai-panel-title{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--ai-text);}
+.ai-star{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--ai),#a855f7);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(124,58,237,.3);}
+.ai-star svg{width:16px;height:16px;fill:white;}
+.ai-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:linear-gradient(135deg,var(--ai),#a855f7);color:white;letter-spacing:.06em;}
+.ai-panel-body{padding:20px;}
+.ai-generating{display:flex;align-items:center;gap:14px;padding:24px 20px;}
+.ai-dots{display:flex;gap:6px;}
+.ai-dot{width:8px;height:8px;border-radius:50%;background:var(--ai);animation:bounce 1.2s infinite;}
+.ai-dot:nth-child(2){animation-delay:.2s;}
+.ai-dot:nth-child(3){animation-delay:.4s;}
+@keyframes bounce{0%,80%,100%{transform:scale(.6);opacity:.4;}40%{transform:scale(1);opacity:1;}}
+.ai-gen-text{font-size:13px;color:var(--ai-text);font-weight:500;}
+.ai-section{margin-bottom:22px;}
+.ai-section:last-child{margin-bottom:0;}
+.ai-section-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ai-text);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--ai-bd);}
+.ai-section-icon{font-size:15px;}
+.issue-list{display:grid;gap:10px;}
+.issue-card{background:white;border:1px solid var(--ai-bd);border-radius:var(--r);padding:14px 16px;border-left:4px solid var(--ai);}
+.issue-card-title{font-size:14px;font-weight:700;color:var(--ai-text);margin-bottom:6px;}
+.issue-card-body{font-size:13px;color:var(--text2);line-height:1.75;}
+.issue-card-evidence{margin-top:10px;padding:8px 12px;background:var(--ai-bg);border-radius:var(--r);font-size:12px;color:var(--text3);border-left:3px solid var(--ai-bd);font-style:italic;line-height:1.6;}
+.ws-question{background:white;border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;}
+.ws-q-num{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--ai),#a855f7);color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.ws-q-text{font-size:13px;color:var(--text);line-height:1.7;font-weight:500;}
+.ws-q-intent{font-size:12px;color:var(--text3);margin-top:4px;line-height:1.5;}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.summary-item{background:white;border:1px solid var(--border);border-radius:var(--r);padding:13px 15px;}
+.summary-item-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:5px;}
+.summary-item-text{font-size:13px;color:var(--text2);line-height:1.7;}
+.ai-error{padding:14px;background:#fff5f5;border:1px solid #fcccc8;border-radius:var(--r);font-size:13px;color:#c0392b;}
+
+/* ── SESSION MEMO ── */
+.session-panel{background:var(--session-bg);border:1.5px solid var(--session-bd);border-radius:var(--rl);margin-bottom:20px;overflow:hidden;box-shadow:var(--sh);}
+.session-panel-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(135deg,#ccfbf1,var(--session-bg));border-bottom:1px solid var(--session-bd);}
+.session-panel-title{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--session);}
+.session-icon-wrap{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--session),#0d9488);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(15,118,110,.3);}
+.session-icon-wrap svg{width:16px;height:16px;fill:white;}
+.session-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--session);color:white;letter-spacing:.06em;}
+.session-body{padding:20px;}
+
+/* Session history list */
+.session-history{margin-top:4px;}
+.session-item{background:white;border:1px solid var(--session-bd);border-radius:var(--r);margin-bottom:10px;overflow:hidden;transition:box-shadow .18s;}
+.session-item:hover{box-shadow:var(--sh2);}
+.session-item-head{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;cursor:pointer;transition:background .16s;}
+.session-item-head:hover{background:var(--session-bg);}
+.session-item-left{display:flex;align-items:center;gap:10px;}
+.session-item-dot{width:10px;height:10px;border-radius:50%;background:var(--session);flex-shrink:0;}
+.session-item-date{font-size:13px;font-weight:700;color:var(--text);}
+.session-item-theme{font-size:12px;color:var(--text3);margin-left:4px;}
+.session-item-actions{display:flex;gap:6px;}
+.session-item-body{padding:0 16px 16px;display:none;}
+.session-item-body.open{display:block;}
+.session-memo-text{font-size:13px;line-height:1.85;color:var(--text2);white-space:pre-wrap;background:var(--n50);border:1px solid var(--border2);border-radius:var(--r);padding:14px;margin-bottom:10px;}
+
+/* ── SESSION FORM ── */
+.session-form{background:white;border:1px solid var(--session-bd);border-radius:var(--r);padding:18px;margin-bottom:16px;}
+.session-form-title{font-size:13px;font-weight:700;color:var(--session);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+
+/* ── REPORT ── */
+.report-section{margin-bottom:22px;}
+.report-section:last-child{margin-bottom:0;}
+.report-section-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--session);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--session-bd);}
+.report-item{background:white;border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;}
+.report-item-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+.report-item-text{font-size:13px;color:var(--text2);line-height:1.8;}
+.pattern-card{background:white;border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;border-left:4px solid var(--session);margin-bottom:10px;}
+.pattern-card-title{font-size:14px;font-weight:700;color:var(--session);margin-bottom:6px;}
+.pattern-card-text{font-size:13px;color:var(--text2);line-height:1.75;}
+.pattern-card-sessions{margin-top:8px;font-size:11px;color:var(--text3);font-style:italic;}
+.coach-note{width:100%;padding:9px 12px;background:var(--morning-bg);border:1.5px dashed var(--morning-bd);border-radius:var(--r);color:var(--text2);font-family:'Noto Sans JP',sans-serif;font-size:12px;line-height:1.7;resize:none;transition:all .18s;}
+.coach-note:focus{outline:none;border-style:solid;border-color:var(--morning);background:#fff;}
+.coach-note::placeholder{color:var(--text3);}
+.coach-note-label{font-size:11px;font-weight:700;color:var(--morning);letter-spacing:.05em;margin-bottom:5px;}
+.ring-svg{display:block;overflow:visible;}
+.ring-bg{fill:none;stroke:var(--n200);stroke-width:5;}
+.ring-fg{fill:none;stroke:var(--accent);stroke-width:5;stroke-linecap:round;transform:rotate(-90deg);transform-origin:center;transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1);}
+.ring-days-text{font-family:'DM Mono',monospace;font-size:15px;fill:var(--text);}
+.ring-unit-text{font-size:9px;fill:var(--text3);}
+.ring-caption{font-size:11px;color:var(--text3);margin-top:4px;text-align:center;}
+
+/* ── TABS inside page ── */
+.page-tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:24px;}
+.page-tab{padding:10px 20px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-2px;transition:all .16s;}
+.page-tab:hover{color:var(--text);}
+.page-tab.active{color:var(--accent);font-weight:700;border-bottom-color:var(--accent);}
+
+.toast{position:fixed;bottom:24px;right:24px;z-index:1000;background:var(--g700);color:white;padding:11px 18px;border-radius:var(--r);font-size:13px;font-weight:500;box-shadow:var(--sh3);opacity:0;transform:translateY(8px);transition:all .25s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
+.empty{text-align:center;padding:40px;color:var(--text3);}
+.empty-i{font-size:32px;margin-bottom:8px;}
+
+@media(max-width:740px){
+  .sidebar{display:none;}
+  .main-inner{padding:18px 14px 60px;}
+  .stats-row{grid-template-columns:1fr 1fr;}
+  .summary-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="screen-login">
+  <div class="login-wrap">
+    <div class="login-logo-wrap">
+      <div class="login-logomark"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg></div>
+      <div class="login-brand">MindLog</div>
+      <div class="login-tagline">メンタルコーチング記録プラットフォーム</div>
+    </div>
+    <div class="login-card">
+      <div class="login-card-title">ログイン</div>
+      <div class="lf"><label class="lf-label">ID / メールアドレス</label><input class="lf-input" type="text" id="li" placeholder="例: tanaka@mindlog.jp" autocomplete="username"></div>
+      <div class="lf"><label class="lf-label">パスワード</label><input class="lf-input" type="password" id="lp" placeholder="••••••••" autocomplete="current-password"><div class="login-error" id="lerr">IDまたはパスワードが正しくありません</div></div>
+      <button class="login-submit" onclick="doLogin()">ログイン</button>
+      <div style="text-align:center;margin-top:14px;">
+        <span style="font-size:12px;color:var(--text3)">初めての方は</span>
+        <button onclick="showRegister()" style="background:none;border:none;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;text-decoration:underline;">新規登録</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div id="screen-register" style="display:none;position:fixed;inset:0;background:linear-gradient(160deg,var(--g50) 0%,var(--n50) 50%,#f0f0ff 100%);display:none;align-items:center;justify-content:center;z-index:100;">
+  <div style="width:100%;max-width:400px;padding:20px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--g700);">MindLog</div>
+      <div style="font-size:12px;color:var(--text3);margin-top:4px;">新規クライアント登録</div>
+    </div>
+    <div style="background:var(--surface);border-radius:14px;padding:28px;box-shadow:var(--sh3);border:1px solid var(--border2);">
+      <div style="font-size:15px;font-weight:700;margin-bottom:20px;">アカウントを作成</div>
+
+      <div class="lf">
+        <label class="lf-label">招待コード（コーチから受け取ったコード）</label>
+        <input class="lf-input" type="text" id="reg-invite" placeholder="例：mindlog2026">
+      </div>
+      <div class="lf">
+        <label class="lf-label">名前</label>
+        <input class="lf-input" type="text" id="reg-name" placeholder="例：田中 蓮">
+      </div>
+      <div class="lf">
+        <label class="lf-label">競技</label>
+        <input class="lf-input" type="text" id="reg-sport" placeholder="例：バスケットボール">
+      </div>
+      <div class="lf">
+        <label class="lf-label">今期のテーマ（任意）</label>
+        <input class="lf-input" type="text" id="reg-theme" placeholder="例：試合中の集中力と感情のコントロール">
+      </div>
+      <div class="lf">
+        <label class="lf-label">ログインID（英数字）</label>
+        <input class="lf-input" type="text" id="reg-uid" placeholder="例：tanaka123">
+      </div>
+      <div class="lf">
+        <label class="lf-label">パスワード</label>
+        <input class="lf-input" type="password" id="reg-pass" placeholder="••••••••">
+      </div>
+      <div class="login-error" id="reg-err"></div>
+      <button class="login-submit" style="margin-top:8px;" onclick="doRegister()">登録する</button>
+      <div style="text-align:center;margin-top:12px;">
+        <button onclick="showLogin()" style="background:none;border:none;color:var(--text3);font-size:12px;cursor:pointer;">← ログイン画面に戻る</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="screen-app">
+  <div class="app-shell">
+    <nav class="sidebar">
+      <div class="sb-header">
+        <div class="sb-logomark"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg></div>
+        <div class="sb-brand">MindLog</div>
+      </div>
+      <div style="padding:10px 10px 0" id="sb-user-wrap"></div>
+      <div class="sb-nav" id="sb-nav"></div>
+      <div class="sb-bottom"><button class="logout-btn" onclick="doLogout()">ログアウト</button></div>
+    </nav>
+    <main class="main"><div class="main-inner" id="main"></div></main>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ══ STATE ══ */
+let CU=null,PAGE='today',COACH_CID='c1',CYC=0,SESSION_TAB='history',AI_CACHE={},RPT_CACHE={};
+const TODAY=new Date().toISOString().slice(0,10);
+
+// スプレッドシート連携URL（設定後にここを書き換える）
+let GAS_URL = 'https://script.google.com/macros/s/AKfycbyi3HUhX8FgZf34O0ql90xuoaXSP4l2t9G5Y3EtBgQ9aXSAru_CnQWzBmKfovEtCPbX/exec';
+
+// ランタイムのクライアントデータキャッシュ
+let CLIENTS = {};
+
+/* ══ GAS通信 ══ */
+async function gasCall(action, body={}) {
+  if (!GAS_URL) throw new Error('GAS_URL未設定');
+  const token = CU?.token || '';
+  const url = `${GAS_URL}?action=${action}&token=${encodeURIComponent(token)}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify({ action, token, ...body }),
+  });
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || 'サーバーエラー');
+  return data;
+}
+
+/* ══ AUTH ══ */
+function ql(id,p){document.getElementById('li').value=id;document.getElementById('lp').value=p;}
+
+async function doLogin(){
+  const uid = document.getElementById('li').value.trim();
+  const pass = document.getElementById('lp').value;
+  if (!uid||!pass) return;
+
+  // デモアカウントはそのまま通す
+  if (DEMO_ACCOUNTS[uid] && DEMO_ACCOUNTS[uid].pass === pass) {
+    demoLogin(uid, pass);
+    return;
+  }
+
+  // GAS未設定ならデモのみ
+  if (!GAS_URL) {
+    demoLogin(uid, pass);
+    return;
+  }
+
+  // GASで認証
+  const btn = document.querySelector('#screen-login .login-submit');
+  if(btn){btn.textContent='接続中…';btn.disabled=true;}
+  try {
+    const data = await fetch(GAS_URL, {
+      method:'POST',
+      body: JSON.stringify({ action:'login', token:'_', uid, pass })
+    }).then(r=>r.json());
+
+    if (!data.ok) {
+      document.getElementById('lerr').textContent = data.error || 'IDまたはパスワードが正しくありません';
+      document.getElementById('lerr').style.display='block';
+      return;
+    }
+    document.getElementById('lerr').style.display='none';
+    CU = { role:data.role, name:data.name, id:data.id||uid, token:data.token,
+           sport:data.sport||'', theme:data.theme||'', next:data.next||'' };
+    await bootApp();
+  } catch(e) {
+    document.getElementById('lerr').textContent = 'サーバーに接続できません';
+    document.getElementById('lerr').style.display='block';
+  } finally {
+    if(btn){btn.textContent='ログイン';btn.disabled=false;}
+  }
+}
+
+function showLoginLoading(on){
+  const btn=document.querySelector('.login-submit');
+  if(btn) btn.textContent = on ? '接続中…' : 'ログイン';
+}
+
+// デモ用ローカル認証（GAS未設定時）
+const DEMO_ACCOUNTS = {
+  'coach':    {pass:'coach123', role:'coach',  name:'山田 明',  id:'coach'},
+  'tanaka':   {pass:'pass123',  role:'client', name:'田中 蓮',  id:'tanaka', sport:'バスケットボール', theme:'試合中の集中力と感情のコントロール', next:'2026-06-01'},
+  'sato':     {pass:'pass123',  role:'client', name:'佐藤 海斗',id:'sato',   sport:'水泳',             theme:'レース前の緊張マネジメント',         next:'2026-06-03'},
+  'yamamoto': {pass:'pass123',  role:'client', name:'山本 彩',  id:'yamamoto',sport:'テニス',          theme:'自己評価のブレを小さくする',         next:'2026-06-05'},
+};
+
+function demoLogin(uid, pass){
+  const a = DEMO_ACCOUNTS[uid];
+  if (!a || a.pass !== pass) {
+    document.getElementById('lerr').textContent='IDまたはパスワードが正しくありません';
+    document.getElementById('lerr').style.display='block';
+    return;
+  }
+  document.getElementById('lerr').style.display='none';
+  CU = { ...a, token: btoa(uid+':'+pass), demo: true };
+  bootApp();
+}
+
+function showRegister(){
+  document.getElementById('screen-login').style.display='none';
+  document.getElementById('screen-register').style.display='flex';
+}
+function showLogin(){
+  document.getElementById('screen-register').style.display='none';
+  document.getElementById('screen-login').style.display='flex';
+}
+
+async function doRegister(){
+  const inviteCode = document.getElementById('reg-invite').value.trim();
+  const name       = document.getElementById('reg-name').value.trim();
+  const sport      = document.getElementById('reg-sport').value.trim();
+  const theme      = document.getElementById('reg-theme').value.trim();
+  const uid        = document.getElementById('reg-uid').value.trim();
+  const pass       = document.getElementById('reg-pass').value;
+  const errEl      = document.getElementById('reg-err');
+
+  if(!inviteCode||!name||!uid||!pass){ errEl.textContent='すべての項目を入力してください';errEl.style.display='block';return; }
+
+  // GAS未設定ならエラー
+  if(!GAS_URL){ errEl.textContent='コーチにGASの設定を依頼してください';errEl.style.display='block';return; }
+
+  const btn = document.querySelector('#screen-register .login-submit');
+  btn.textContent='登録中…';btn.disabled=true;
+
+  try{
+    const res = await fetch(GAS_URL, {
+      method:'POST',
+      body: JSON.stringify({ action:'register', inviteCode, uid, pass, name, sport, theme })
+    }).then(r=>r.json());
+
+    if(!res.ok){ errEl.textContent=res.error||'登録に失敗しました';errEl.style.display='block';return; }
+
+    // 登録成功 → そのままログイン
+    errEl.style.display='none';
+    CU = { role:'client', name:res.name, id:res.id, token:res.token, sport:res.sport||'', theme:'', next:'' };
+    document.getElementById('screen-register').style.display='none';
+    await bootApp();
+  }catch(e){
+    errEl.textContent='サーバーに接続できません: '+e.message;errEl.style.display='block';
+  }finally{
+    btn.textContent='登録する';btn.disabled=false;
+  }
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('screen-login').style.display!=='none')doLogin();});
+
+function doLogout(){
+  CU=null; CLIENTS={};
+  document.getElementById('screen-app').style.display='none';
+  document.getElementById('screen-login').style.display='flex';
+  document.getElementById('li').value='';
+  document.getElementById('lp').value='';
+}
+
+/* ══ BOOT ══ */
+async function bootApp(){
+  document.getElementById('screen-login').style.display='none';
+  document.getElementById('screen-app').style.display='block';
+
+  if(CU.role==='coach'){
+    await loadClientList();
+    if(Object.keys(CLIENTS).length>0) COACH_CID=Object.keys(CLIENTS)[0];
+  } else {
+    // クライアントは自分のデータだけ
+    if(!CLIENTS[CU.id]) CLIENTS[CU.id]={name:CU.name,sport:CU.sport||'',theme:CU.theme||'',next:CU.next||'',entries:[],sessions:[]};
+    await loadClientData(CU.id);
+  }
+  initApp();
+}
+
+// クライアント一覧だけ取得（データは取らない）
+async function loadClientList(){
+  if(CU.demo){
+    ['tanaka','sato','yamamoto'].forEach(uid=>{
+      const a=DEMO_ACCOUNTS[uid];
+      CLIENTS[uid]={name:a.name,sport:a.sport,theme:a.theme,next:a.next,entries:mkDemoEntries(uid),sessions:mkDemoSessions(uid),loaded:true};
+    });
+    return;
+  }
+  try{
+    const data=await gasCall('getClients');
+    for(const c of data.clients){
+      CLIENTS[c.id]={name:c.name,sport:c.sport,theme:c.theme,next:c.next,entries:[],sessions:[],loaded:false};
+    }
+  }catch(e){ toast('クライアント一覧の取得に失敗: '+e.message); }
+}
+
+// 1クライアント分だけ取得（遅延ロード）
+async function loadClientData(cid){
+  if(CU.demo) return;
+  if(CLIENTS[cid]?.loaded) return; // 取得済みならスキップ
+  try{
+    const eRes=await gasCall('getEntries',{clientId:cid});
+    if(!CLIENTS[cid]) CLIENTS[cid]={name:'',sport:'',theme:'',next:'',entries:[],sessions:[],loaded:false};
+    CLIENTS[cid].entries=eRes.entries||[];
+    const sRes=await gasCall('getSessions',{clientId:cid});
+    CLIENTS[cid].sessions=sRes.sessions||[];
+    CLIENTS[cid].loaded=true;
+  }catch(e){ console.error('loadClientData:',e); }
+}
+
+/* ══ データ保存（GAS or ローカル） ══ */
+async function persistEntry(cid, entry){
+  if (CU.demo) return; // デモはメモリのみ
+  try { await gasCall('saveEntry', { clientId: cid, entry }); } catch(e) { toast('保存エラー: '+e.message); }
+}
+async function persistSession(cid, session){
+  if (CU.demo) return;
+  try { await gasCall('saveSession', { clientId: cid, session }); } catch(e) { toast('保存エラー: '+e.message); }
+}
+async function removeSession(cid, sessionId){
+  if (CU.demo) return;
+  try { await gasCall('deleteSession', { sessionId }); } catch(e) { toast('削除エラー: '+e.message); }
+}
+
+/* ══ デモデータ生成 ══ */
+function mkDemoEntries(cid){
+  const raw={
+    tanaka:[
+      {m:{goal:'シュートフォームの安定に集中する',plan:'10分イメトレ後ウォームアップ',mood:7},e:{fact:'午前練習90分。シュート成功率58%。フォーム指摘あり。',interp:'指摘後すぐ切り替えられた。後半に焦りと集中力低下。',mood:6},note:'後半の集中力低下パターン確認'},
+      {m:{goal:'守備の動き出しを意識する',plan:'映像確認→練習',mood:6},e:{fact:'チーム練習120分。3P 2/6。ターンオーバー2回。',interp:'焦りで判断が早まった。冷静な時は動けている。',mood:5},note:'焦りのトリガーを深掘り'},
+      {m:{goal:'映像分析で気づきを得る',plan:'試合映像1試合視聴',mood:8},e:{fact:'オフ。軽いストレッチ20分。試合映像視聴。',interp:'映像で表情が硬いと気づいた。',mood:7},note:''},
+      {m:{goal:'新しいドリブルムーブ習得',plan:'反復練習60分',mood:7},e:{fact:'個人練習60分。新ドリブルムーブ練習。',interp:'最後の10分でコツを掴んだ。諦めずに続けられた。',mood:8},note:''},
+    ],
+    sato:[
+      {m:{goal:'タイムトライアルでペース安定',plan:'ウォームアップ30分後一定ペース',mood:7},e:{fact:'朝練2時間。2000mTT 1:58.3（自己ベスト比+1.2秒）。',interp:'タイムが出なかったが疲れが原因と冷静に分析。',mood:7},note:'分析できている点を承認'},
+      {m:{goal:'レスト日を充実させる',plan:'日光浴30分、食事と睡眠',mood:6},e:{fact:'レスト日。栄養・睡眠意識。日光浴30分。',interp:'休むことへの罪悪感がある。',mood:6},note:''},
+    ],
+    yamamoto:[
+      {m:{goal:'サーブの安定を意識する',plan:'サーブ50本ウォームアップ',mood:6},e:{fact:'練習試合1セット。6-4で勝利。DF3回。',interp:'勝ったのにDFが気になって素直に喜べなかった。',mood:6},note:'減点思考パターン確認'},
+      {m:{goal:'フォームをコーチに見てもらう',plan:'フォーム動画を撮る',mood:7},e:{fact:'サーブ練習1時間。「フォーム安定してきた」とFB。',interp:'褒められても「たまたま」と思ってしまう。',mood:7},note:''},
+    ],
+  };
+  const arr = raw[cid]||[];
+  return arr.map((e,i)=>{const d=new Date();d.setDate(d.getDate()-(arr.length-1-i));return{...e,date:d.toISOString().slice(0,10)};});
+}
+
+function mkDemoSessions(cid){
+  const ago=(n)=>{const d=new Date();d.setDate(d.getDate()-n);return d.toISOString().slice(0,10);};
+  const raw={
+    tanaka:[
+      {id:'s_t1',date:ago(28),theme:'集中力と感情のコントロール（第1回）',memo:'試合中の感情コントロールについて深く話し合った。田中は「ミスをしたときに頭が真っ白になる感覚がある」と語った。\n対処として、ミス直後に3秒間深呼吸し「次だ」と声に出すルーティンを提案。',aiCache:null,extraNote:''},
+      {id:'s_t2',date:ago(14),theme:'集中力と感情のコントロール（第2回）',memo:'前回の「3秒深呼吸→次だ」を実践していた。「最初の3日は意識できたが後半は忘れた」と報告。\n固定マインドセットの傾向が浮かび上がった。',aiCache:null,extraNote:''},
+    ],
+    sato:[{id:'s_s1',date:ago(28),theme:'緊張マネジメント（第1回）',memo:'スタートへの過剰な依存について探った。「スタートが成功=今日は良い日」という二項対立的な思考パターンが見えてきた。',aiCache:null,extraNote:''}],
+    yamamoto:[{id:'s_y1',date:ago(28),theme:'自己評価のブレを小さくする（第1回）',memo:'「練習試合で勝っても素直に喜べない」という状態について。「証拠を集める」アプローチを提案した。',aiCache:null,extraNote:''}],
+  };
+  return raw[cid]||[];
+}
+
+/* ══ INIT ══ */
+function initApp(){
+  const isCoach=CU.role==='coach';
+  document.getElementById('sb-user-wrap').innerHTML=`<div class="sb-user"><div class="sb-user-name">${CU.name}</div><div class="sb-user-role ${isCoach?'role-coach':'role-client'}">${isCoach?'⬤ COACH':'⬤ '+(CLIENTS[CU.id]?.sport||CU.sport||'')}</div></div>`;
+  let nav='';
+  if(isCoach){
+    nav=`<div class="sb-section">コーチ</div>
+      <div class="sb-item active" data-p="records" onclick="go('records')"><span>📋</span>クライアント記録</div>
+      <div class="sb-item" data-p="sessions" onclick="go('sessions')"><span>📝</span>セッションメモ</div>
+      <div class="sb-item" data-p="ai" onclick="go('ai')"><span>✦</span>AI セッション準備</div>
+      <div class="sb-item" data-p="graph" onclick="go('graph')"><span>📈</span>グラフ分析</div>
+      <div class="sb-item" data-p="export" onclick="go('export')"><span>📥</span>CSVエクスポート</div>
+      <div class="sb-item" data-p="settings" onclick="go('settings')"><span>⚙️</span>設定</div>`;
+  } else {
+    nav=`<div class="sb-section">記録</div>
+      <div class="sb-item active" data-p="today" onclick="go('today')"><span>✏️</span>今日の記録</div>
+      <div class="sb-item" data-p="timeline" onclick="go('timeline')"><span>📖</span>タイムライン</div>
+      <div class="sb-section">分析</div>
+      <div class="sb-item" data-p="graph" onclick="go('graph')"><span>📈</span>2週間グラフ</div>`;
+  }
+  document.getElementById('sb-nav').innerHTML=nav;
+  go(isCoach?'records':'today');
+}
+
+function go(p){
+  PAGE=p;
+  document.querySelectorAll('.sb-item').forEach(el=>el.classList.toggle('active',el.dataset.p===p));
+  const m=document.getElementById('main');
+  if(CU.role==='client'){
+    const cdata = CLIENTS[CU.id] || {name:CU.name,sport:CU.sport,theme:CU.theme,next:CU.next,entries:[],sessions:[]};
+    if(p==='today') pgClientToday(m, cdata);
+    else if(p==='timeline') pgTimeline(m, cdata);
+    else pgGraph(m,false);
+  } else {
+    if(p==='records') pgCoach(m);
+    else if(p==='sessions') pgSessions(m);
+    else if(p==='ai') pgAI(m);
+    else if(p==='export') pgExport(m);
+    else if(p==='settings') pgSettings(m);
+    else pgGraph(m,true);
+  }
+}
+
+/* ══ UTIL ══ */
+function fmt(d){return new Date(d+'T00:00:00').toLocaleDateString('ja-JP',{month:'long',day:'numeric',weekday:'short'});}
+function emo(v){return['','😔','😟','😕','😐','😐','🙂','😊','😄','🤩','🔥'][v]||'😐';}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+function toggleEC(id){document.getElementById(id)?.classList.toggle('collapsed');}
+function toggleSI(id){const b=document.getElementById(id);if(b)b.classList.toggle('open');}
+
+/* ══ CLIENT TODAY ══ */
+function pgClientToday(m, cdata){
+  if(!cdata) cdata = CLIENTS[CU.id]||{name:CU.name,sport:CU.sport||'',theme:CU.theme||'',next:CU.next||'',entries:[],sessions:[]};
+  const days=Math.max(0,Math.ceil((new Date(cdata.next||'2099-01-01')-new Date())/86400000));
+  const entry=cdata.entries.find(e=>e.date===TODAY)||{},hasMorn=!!entry.m?.goal,hasEve=!!(entry.e?.fact||entry.e?.interp);
+  const C=2*Math.PI*26,off=C*(1-Math.min(1,Math.max(0,1-days/14)));
+  m.innerHTML=`<div class="ph"><div><div class="ph-title">今日の記録</div><div class="ph-sub">${new Date().toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'long'})}</div></div><div style="text-align:center"><svg class="ring-svg" width="66" height="66" viewBox="0 0 66 66"><circle class="ring-bg" cx="33" cy="33" r="26"/><circle class="ring-fg" cx="33" cy="33" r="26" stroke-dasharray="${C}" stroke-dashoffset="${off}"/><text x="33" y="30" text-anchor="middle" class="ring-days-text">${days}</text><text x="33" y="41" text-anchor="middle" class="ring-unit-text">日後</text></svg><div class="ring-caption">次回セッション</div></div></div>
+<div class="theme-box"><div class="theme-icon"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01z"/></svg></div><div><div class="theme-label">今期のテーマ</div><div class="theme-text">${cdata.theme||'—'}</div></div></div>
+<div class="card"><div class="card-head"><div class="card-head-title"><div class="card-dot" style="background:var(--morning)"></div>朝イチの記録</div>${hasMorn?'<span class="badge badge-done">✓ 記録済み</span>':''}</div><div class="card-body">${hasMorn?roMorn(entry.m):formMorn()}</div></div>
+<div class="card"><div class="card-head"><div class="card-head-title"><div class="card-dot" style="background:var(--evening)"></div>夜の振り返り</div>${hasEve?'<span class="badge badge-done">✓ 記録済み</span>':''}</div><div class="card-body">${hasEve?roEve(entry.e):formEve()}</div></div>`;
+  if(!hasMorn)updEmo('ms','me','mv');
+  if(!hasEve)updEmo('es','ee','ev');
+}
+function formMorn(){return`<div class="field"><div class="fl" style="color:var(--morning)">今日の目標</div><div class="fl-hint">今日一番フォーカスしたいことは何？</div><textarea id="mg" rows="2" class="f-morning" placeholder="例：練習でシュートフォームの安定に集中する"></textarea></div><div class="field"><div class="fl" style="color:var(--morning)">そのために何をするか</div><div class="fl-hint">具体的な行動・準備を書く。</div><textarea id="mp" rows="2" class="f-morning" placeholder="例：イメトレ10分後、入念にウォームアップ"></textarea></div><div class="mood-row"><span class="mood-label-txt">朝の気分</span><span class="mood-emoji" id="me">🙂</span><div class="mood-track"><input type="range" id="ms" min="1" max="10" value="6" style="accent-color:var(--morning)" oninput="updEmo('ms','me','mv')"></div><span class="mood-val" id="mv">6</span></div><div class="btn-row"><button class="btn btn-morning" onclick="saveMorn()">朝の記録を保存</button></div>`;}
+function formEve(){return`<div class="field"><div class="fl" style="color:var(--fact-c)">事実・出来事</div><div class="fl-hint">数字・行動・出来事を客観的に。</div><textarea id="ef" rows="3" class="f-fact" placeholder="例：午前練習90分。シュート成功率58%。"></textarea></div><div class="divider"></div><div class="field"><div class="fl" style="color:var(--interp-c)">解釈・感情・気づき</div><div class="fl-hint">その事実をどう感じ、どう解釈したか。</div><textarea id="ei" rows="3" class="f-interp" placeholder="例：指摘後すぐ切り替えられた。後半に焦りが出た。"></textarea></div><div class="mood-row"><span class="mood-label-txt">夜のメンタル</span><span class="mood-emoji" id="ee">🙂</span><div class="mood-track"><input type="range" id="es" min="1" max="10" value="6" oninput="updEmo('es','ee','ev')"></div><span class="mood-val" id="ev">6</span></div><div class="btn-row"><button class="btn btn-primary" onclick="saveEve()">夜の記録を保存</button></div>`;}
+function roMorn(mn){return`<div class="es"><div class="es-label" style="color:var(--morning)">今日の目標</div><div class="es-text">${mn.goal}</div></div><div class="es"><div class="es-label" style="color:var(--morning)">行動計画</div><div class="es-text">${mn.plan||'—'}</div></div><div class="data-row"><span>朝の気分</span><span>${emo(mn.mood)}</span><div class="mini-bar"><div class="mini-fill" style="width:${mn.mood*10}%"></div></div><span>${mn.mood}/10</span></div>`;}
+function roEve(ev){return`<div class="es"><div class="es-label" style="color:var(--fact-c)">事実・出来事</div><div class="es-text">${ev.fact||'—'}</div></div><div class="es"><div class="es-label" style="color:var(--interp-c)">解釈・感情</div><div class="es-text">${ev.interp||'—'}</div></div><div class="data-row"><span>夜のメンタル</span><span>${emo(ev.mood)}</span><div class="mini-bar"><div class="mini-fill" style="width:${ev.mood*10}%"></div></div><span>${ev.mood}/10</span></div>`;}
+function updEmo(sid,eid,vid){const v=document.getElementById(sid)?.value;if(!v)return;if(document.getElementById(eid))document.getElementById(eid).textContent=emo(parseInt(v));if(document.getElementById(vid))document.getElementById(vid).textContent=v;}
+async function saveMorn(){
+  const goal=document.getElementById('mg')?.value.trim(),plan=document.getElementById('mp')?.value.trim(),mood=parseInt(document.getElementById('ms')?.value||6);
+  if(!goal){toast('今日の目標を入力してください');return;}
+  if(!CLIENTS[CU.id])CLIENTS[CU.id]={name:CU.name,sport:CU.sport||'',theme:CU.theme||'',next:CU.next||'',entries:[],sessions:[]};
+  const c=CLIENTS[CU.id];let e=c.entries.find(x=>x.date===TODAY);
+  if(!e){e={date:TODAY};c.entries.push(e);}
+  e.m={goal,plan,mood};
+  await persistEntry(CU.id,e);
+  toast('朝の記録を保存しました ✓');pgClientToday(document.getElementById('main'),c);
+}
+async function saveEve(){
+  const fact=document.getElementById('ef')?.value.trim(),interp=document.getElementById('ei')?.value.trim(),mood=parseInt(document.getElementById('es')?.value||6);
+  if(!fact&&!interp){toast('何か記録してみましょう');return;}
+  if(!CLIENTS[CU.id])CLIENTS[CU.id]={name:CU.name,sport:CU.sport||'',theme:CU.theme||'',next:CU.next||'',entries:[],sessions:[]};
+  const c=CLIENTS[CU.id];let e=c.entries.find(x=>x.date===TODAY);
+  if(!e){e={date:TODAY};c.entries.push(e);}
+  e.e={fact,interp,mood};if(!e.note)e.note='';
+  await persistEntry(CU.id,e);
+  toast('夜の記録を保存しました ✓');pgClientToday(document.getElementById('main'),c);
+}
+
+/* ══ CLIENT TIMELINE ══ */
+function pgTimeline(m, cdata){
+  if(!cdata) cdata=CLIENTS[CU.id]||{entries:[]};
+  const sorted=[...cdata.entries].sort((a,b)=>b.date.localeCompare(a.date));
+  m.innerHTML=`<div class="ph"><div><div class="ph-title">記録タイムライン</div><div class="ph-sub">全 ${sorted.length} 件</div></div></div>${sorted.map((e,i)=>`<div class="ec collapsed" id="ec${i}"><div class="ec-head" onclick="toggleEC('ec${i}')"><div class="ec-hl"><div class="ec-dot ${e.m&&e.e?'dot-b':e.m?'dot-m':'dot-e'}"></div><span class="ec-date">${fmt(e.date)}</span></div><div class="ec-tags">${e.m?'<span class="badge badge-morning">朝</span>':''}${e.e?'<span class="badge badge-evening">夜</span>':''}</div></div><div class="ec-body">${e.m?`<div class="es"><div class="es-label" style="color:var(--morning)">今日の目標</div><div class="es-text">${e.m.goal}</div></div><div class="es"><div class="es-label" style="color:var(--morning)">行動計画</div><div class="es-text">${e.m.plan||'—'}</div></div><div class="data-row"><span>朝の気分</span><span>${emo(e.m.mood)}</span><div class="mini-bar"><div class="mini-fill" style="width:${e.m.mood*10}%"></div></div><span>${e.m.mood}/10</span></div>`:''}${e.m&&e.e?'<div class="divider"></div>':''}${e.e?`<div class="es"><div class="es-label" style="color:var(--fact-c)">事実</div><div class="es-text">${e.e.fact||'—'}</div></div><div class="es"><div class="es-label" style="color:var(--interp-c)">解釈・感情</div><div class="es-text">${e.e.interp||'—'}</div></div><div class="data-row"><span>夜のメンタル</span><span>${emo(e.e.mood)}</span><div class="mini-bar"><div class="mini-fill" style="width:${e.e.mood*10}%"></div></div><span>${e.e.mood}/10</span></div>`:''}</div></div>`).join('')||'<div class="empty"><div class="empty-i">📖</div>まだ記録がありません</div>'}`;
+}
+
+/* ══ COACH RECORDS ══ */
+async function pgCoach(m){
+  // まずローディング表示
+  if(!CLIENTS[COACH_CID]?.loaded && !CU.demo){
+    m.innerHTML=`<div style="padding:60px;text-align:center;color:var(--text3)"><div class="ai-dots" style="justify-content:center;margin-bottom:12px"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div><div style="font-size:13px">データを読み込んでいます…</div></div>`;
+    await loadClientData(COACH_CID);
+  }
+  const c=CLIENTS[COACH_CID]||{name:'',sport:'',theme:'',next:'',entries:[],sessions:[]};
+  const days=Math.max(0,Math.ceil((new Date(c.next||'2099-01-01')-new Date())/86400000));
+  const sorted=[...c.entries].sort((a,b)=>b.date.localeCompare(a.date));
+  const tabs=Object.entries(CLIENTS).map(([id,cl])=>`<button class="ctab ${id===COACH_CID?'active':''}" onclick="COACH_CID='${id}';pgCoach(document.getElementById('main'))">${cl.name}</button>`).join('');
+  const cards=sorted.map((e,i)=>`<div class="ec collapsed" id="cc${i}"><div class="ec-head" onclick="toggleEC('cc${i}')"><div class="ec-hl"><div class="ec-dot ${e.m&&e.e?'dot-b':e.m?'dot-m':'dot-e'}"></div><span class="ec-date">${fmt(e.date)}</span></div><div class="ec-tags">${e.m?'<span class="badge badge-morning">朝</span>':''}${e.e?'<span class="badge badge-evening">夜</span>':''}</div></div><div class="ec-body">${e.m?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="es"><div class="es-label" style="color:var(--morning)">朝の目標</div><div class="es-text">${e.m.goal}</div></div><div class="es"><div class="es-label" style="color:var(--morning)">行動計画</div><div class="es-text">${e.m.plan||'—'}</div></div></div><div class="data-row"><span>朝の気分</span><span>${emo(e.m.mood)}</span><div class="mini-bar"><div class="mini-fill" style="width:${e.m.mood*10}%"></div></div><span>${e.m.mood}/10</span></div>`:''}${e.m&&e.e?'<div class="divider"></div>':''}${e.e?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="es"><div class="es-label" style="color:var(--fact-c)">事実</div><div class="es-text">${e.e.fact||'—'}</div></div><div class="es"><div class="es-label" style="color:var(--interp-c)">解釈・感情</div><div class="es-text">${e.e.interp||'—'}</div></div></div><div class="data-row"><span>夜のメンタル</span><span>${emo(e.e.mood)}</span><div class="mini-bar"><div class="mini-fill" style="width:${e.e.mood*10}%"></div></div><span>${e.e.mood}/10</span></div>`:''}<div style="margin-top:10px"><div class="coach-note-label">📝 コーチメモ</div><textarea class="coach-note" rows="2" placeholder="次回セッションで深掘りしたいポイント…" onchange="saveNote('${COACH_CID}','${e.date}',this.value)">${e.note||''}</textarea></div></div></div>`).join('');
+  m.innerHTML=`<div class="ph"><div><div class="ph-title">クライアント記録</div><div class="ph-sub">${new Date().toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric'})}</div></div></div><div class="privacy-bar">🔒 クライアント情報は完全分離。他のクライアントは互いを知りません。</div><div class="client-tabs">${tabs}</div><div class="theme-box"><div class="theme-icon"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01z"/></svg></div><div><div class="theme-label">${c.name}（${c.sport}）— 次回まであと ${days} 日</div><div class="theme-text">${c.theme||'—'}</div></div></div><div class="sec-row"><span class="sec-label">日別記録</span><div class="sec-line"></div><span style="font-size:11px;color:var(--text3)">クリックで展開</span></div>${cards||'<div class="empty"><div class="empty-i">📋</div>記録なし</div>'}`;
+}
+function saveNote(cid,date,val){
+  const e=CLIENTS[cid]?.entries.find(x=>x.date===date);
+  if(e){e.note=val;persistEntry(cid,e);toast('メモを保存 ✓');}
+}
+async function saveSession(){
+  const date=document.getElementById('ns-date').value.trim();
+  const theme=document.getElementById('ns-theme').value.trim();
+  const memo=document.getElementById('ns-memo').value.trim();
+  if(!memo){toast('セッションメモを入力してください');return;}
+  const s={id:Date.now().toString(),date:date||TODAY,theme,memo,aiCache:null,extraNote:''};
+  CLIENTS[COACH_CID].sessions.push(s);
+  await persistSession(COACH_CID,s);
+  closeAddSession();toast('セッションを保存しました ✓');renderSessionList();
+}
+async function deleteSession(id){
+  if(!confirm('このセッションメモを削除しますか？'))return;
+  CLIENTS[COACH_CID].sessions=CLIENTS[COACH_CID].sessions.filter(s=>s.id!==id);
+  await removeSession(COACH_CID,id);
+  renderSessionList();toast('削除しました');
+}
+function updateSessionNote(id,val){
+  const s=CLIENTS[COACH_CID].sessions.find(x=>x.id===id);
+  if(s){s.extraNote=val;persistSession(COACH_CID,s);}
+}
+
+/* ══ SETTINGS PAGE ══ */
+function pgSettings(m){
+  const connected = !!GAS_URL;
+  m.innerHTML=`
+<div class="ph">
+  <div><div class="ph-title">設定</div><div class="ph-sub">Google スプレッドシート連携</div></div>
+</div>
+
+<div class="card">
+  <div class="card-head">
+    <div class="card-head-title">
+      <div class="card-dot" style="background:${connected?'var(--g500)':'var(--n300)'}"></div>
+      スプレッドシート連携URL
+    </div>
+    <span class="badge ${connected?'badge-done':''}">
+      ${connected?'✓ 接続済み':'未接続（デモモード）'}
+    </span>
+  </div>
+  <div class="card-body">
+    <div style="font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:16px">
+      Google Apps Script のデプロイURLを入力すると、すべてのデータがGoogleスプレッドシートに自動保存されます。<br>
+      未設定の場合はデモモードで動作します（データはページを閉じると消えます）。
+    </div>
+    <div class="field">
+      <div class="fl">Apps Script デプロイURL</div>
+      <input type="text" id="gas-url-input" value="${GAS_URL}" placeholder="https://script.google.com/macros/s/…/exec">
+    </div>
+    <div class="btn-row" style="padding-top:0">
+      <button class="btn btn-ghost" onclick="clearGASUrl()">URLをクリア</button>
+      <button class="btn btn-primary" onclick="saveGASUrl()">保存して接続</button>
+    </div>
+  </div>
+</div>
+
+<div style="background:var(--g50);border:1px solid var(--g200);border-radius:var(--rl);padding:20px 22px;margin-bottom:16px">
+  <div style="font-size:13px;font-weight:700;color:var(--g700);margin-bottom:14px;display:flex;align-items:center;gap:8px">
+    📋 Google Apps Script の設定手順
+  </div>
+  <ol style="font-size:13px;color:var(--text2);line-height:2.2;padding-left:20px">
+    <li>Googleスプレッドシートを新規作成する</li>
+    <li>メニュー「拡張機能」→「Apps Script」をクリック</li>
+    <li>表示されたエディタの内容を全部削除する</li>
+    <li>ダウンロードした <strong>MindLog_Apps_Script.gs</strong> の内容を貼り付ける</li>
+    <li>上部の「setup」関数を選んで▶実行ボタンを押す（初回のみ）</li>
+    <li>「デプロイ」→「新しいデプロイ」→「ウェブアプリ」を選択</li>
+    <li>「次のユーザーとして実行」→ <strong>自分</strong>、「アクセスできるユーザー」→ <strong>全員</strong> を選択</li>
+    <li>「デプロイ」を押してURLをコピー</li>
+    <li>上の入力欄にURLを貼り付けて「保存して接続」を押す</li>
+  </ol>
+  <div style="margin-top:12px;padding:10px 14px;background:white;border-radius:var(--r);border:1px solid var(--g200);font-size:12px;color:var(--g700)">
+    🔒 <strong>セキュリティについて：</strong>スプレッドシートは自分のGoogleアカウントに保存されます。Apps ScriptのURLを知らない人はデータにアクセスできません。URLは他人に教えないでください。
+  </div>
+</div>`;
+}
+
+function saveGASUrl(){
+  const url=document.getElementById('gas-url-input')?.value.trim();
+  if(!url){toast('URLを入力してください');return;}
+  GAS_URL=url;
+  localStorage.setItem('mindlog_gas_url',url);
+  toast('URLを保存しました。次回ログインから有効になります ✓');
+  pgSettings(document.getElementById('main'));
+}
+function clearGASUrl(){
+  GAS_URL='';
+  localStorage.removeItem('mindlog_gas_url');
+  toast('URLをクリアしました（デモモードに戻ります）');
+  pgSettings(document.getElementById('main'));
+}
+
+/* ══════════════════════════════════════════
+   SESSION MEMO PAGE
+══════════════════════════════════════════ */
+async function pgSessions(m){
+  if(!CLIENTS[COACH_CID]?.loaded && !CU.demo){
+    m.innerHTML=`<div style="padding:60px;text-align:center;color:var(--text3)"><div class="ai-dots" style="justify-content:center;margin-bottom:12px"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div><div style="font-size:13px">データを読み込んでいます…</div></div>`;
+    await loadClientData(COACH_CID);
+  }
+  const c=CLIENTS[COACH_CID]||{sessions:[]};
+  const tabs=Object.entries(CLIENTS).map(([id,cl])=>`<button class="ctab ${id===COACH_CID?'active':''}" onclick="COACH_CID='${id}';pgSessions(document.getElementById('main'))">${cl.name}</button>`).join('');
+
+  m.innerHTML=`
+<div class="ph">
+  <div><div class="ph-title">セッションメモ</div><div class="ph-sub">過去セッションの記録・蓄積・パターン分析</div></div>
+  <button class="btn btn-session btn-sm" onclick="openAddSession()">＋ 新しいセッションを記録</button>
+</div>
+<div class="privacy-bar">🔒 クライアント情報は完全分離。他のクライアントは互いを知りません。</div>
+<div class="client-tabs">${tabs}</div>
+
+<!-- 新規入力フォーム -->
+<div id="add-session-form" style="display:none">
+  <div class="session-form">
+    <div class="session-form-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--session)"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+      新しいセッションを記録する
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <div><div class="fl">セッション日</div><input type="text" id="ns-date" placeholder="例: 2026-05-09" value="${TODAY}"></div>
+      <div><div class="fl">テーマ</div><input type="text" id="ns-theme" placeholder="例: 集中力と感情のコントロール（第3回）"></div>
+    </div>
+    <div><div class="fl">セッションメモ</div><div class="fl-hint">Pagesやメモアプリのメモをそのままペーストしてください。形式は自由です。</div>
+    <textarea id="ns-memo" rows="10" class="f-session" placeholder="例：
+今回は前回の宿題（3秒ルーティン）の振り返りから始めた。
+田中から「試合中に2回実践できた」との報告。..."></textarea></div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="closeAddSession()">キャンセル</button>
+      <button class="btn btn-session" onclick="saveSession()">セッションを保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="session-panel">
+  <div class="session-panel-head">
+    <div class="session-panel-title">
+      <div class="session-icon-wrap"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15h8v2H8zm0-4h8v2H8zm0-4h5v2H8z"/></svg></div>
+      セッション履歴 — ${c.name}
+    </div>
+    <span class="session-badge">${c.sessions.length} 回</span>
+  </div>
+  <div class="session-body">
+    <div id="session-history-list"></div>
+  </div>
+</div>
+
+<!-- AI パターン分析 -->
+<div class="ai-panel" id="session-ai-panel">
+  <div class="ai-panel-head">
+    <div class="ai-panel-title">
+      <div class="ai-star"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg></div>
+      AI パターン分析 — 全セッションを横断分析
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="ai-badge">Claude AI</span>
+      <button class="btn btn-ai btn-sm" id="pattern-btn" onclick="generatePattern(true)">
+        ${RPT_CACHE[COACH_CID]?'再生成':'✦ 分析する'}
+      </button>
+    </div>
+  </div>
+  <div class="ai-panel-body" id="pattern-result">
+    ${RPT_CACHE[COACH_CID] ? renderPattern(RPT_CACHE[COACH_CID]) : `
+    <div style="text-align:center;padding:28px;color:var(--text3)">
+      <div style="font-size:32px;margin-bottom:10px">🔍</div>
+      <div style="font-size:13px;color:var(--ai-text);font-weight:500;margin-bottom:6px">全セッションを横断分析</div>
+      <div style="font-size:12px;line-height:1.7">蓄積されたセッションメモから、思考・感情・行動の繰り返しパターン、<br>成長の兆し、次回セッションへの示唆を自動抽出します。</div>
+    </div>`}
+  </div>
+</div>`;
+
+  renderSessionList();
+}
+
+function renderSessionList(){
+  const c=CLIENTS[COACH_CID];
+  const sorted=[...c.sessions].sort((a,b)=>b.date.localeCompare(a.date));
+  const container=document.getElementById('session-history-list');
+  if(!container)return;
+  if(!sorted.length){container.innerHTML='<div class="empty"><div class="empty-i">📝</div>まだセッションメモがありません</div>';return;}
+  container.innerHTML=sorted.map((s,i)=>`
+    <div class="session-item">
+      <div class="session-item-head" onclick="toggleSI('si-body-${s.id}')">
+        <div class="session-item-left">
+          <div class="session-item-dot"></div>
+          <span class="session-item-date">${fmt(s.date)}</span>
+          <span class="session-item-theme">${s.theme||''}</span>
+        </div>
+        <div class="session-item-actions">
+          <button class="btn btn-ai btn-xs" onclick="event.stopPropagation();generateSessionAI('${s.id}')">✦ AI分析</button>
+          <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();deleteSession('${s.id}')">削除</button>
+        </div>
+      </div>
+      <div class="session-item-body" id="si-body-${s.id}">
+        <div class="session-memo-text">${s.memo}</div>
+        <div id="si-ai-${s.id}">
+          ${s.aiCache ? renderSessionAIResult(s.aiCache) : ''}
+        </div>
+        <div style="margin-top:8px">
+          <div class="coach-note-label">📝 追記メモ</div>
+          <textarea class="coach-note" rows="2" placeholder="このセッションへの追記…" onchange="updateSessionNote('${s.id}',this.value)">${s.extraNote||''}</textarea>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openAddSession(){document.getElementById('add-session-form').style.display='block';document.getElementById('add-session-form').scrollIntoView({behavior:'smooth'});}
+function closeAddSession(){document.getElementById('add-session-form').style.display='none';}
+
+/* ── AI: 単一セッション分析（モック） ── */
+const SESSION_AI_MOCKS = {
+  c1: [
+    {key_moment:'「ミス直後に頭が真っ白になる」という表現が今回の核心だった。この状態を詳しく探ると、呼吸の浅さ・視野狭窄・自己批判の声という3つが同時に起きていることが明らかになった。これは単なる集中力の問題ではなく、自動化された防衛反応であることが見えてきた。',client_belief:'「ミスをした自分は許されない」という厳しい自己基準を持っている。完璧でなければ価値がないという信念が、ミス後の感情の嵐を引き起こしている可能性が高い。',progress:'初回セッションのため現在地の整理として：感情と行動のつながりに気づき始めており、自己観察の能力は高い。言語化力があるため、メンタルスキルの習得が早い可能性がある。',next_focus:'「頭が真っ白になる」直前に何が起きているか（トリガーの特定）。特定の状況（リードしているとき・コーチが見ているとき等）でパターンが変わるかを確認したい。',worksheet_q:['ミスをした直後、頭の中で最初に聞こえる言葉は何ですか？','「次だ」と切り替えられた場面と、できなかった場面の違いは何だと思いますか？','もしチームメイトが同じミスをしたら、あなたは何と声をかけますか？']},
+    {key_moment:'ルーティンの習慣化で「後半は忘れた」という正直な報告があった。これを深掘りすると、後半に疲労と焦りが重なるタイミングでルーティンの想起が困難になることがわかった。また「能力が低いからだ」という固定マインドセットの言葉が自然に出てきたことが最大の収穫だった。',client_belief:'能力は生まれつき固定されているという信念を持っている。努力を「能力の低さを補う行為」として捉えており、練習の意味づけが根本的に違う可能性がある。',progress:'前回提案したルーティンを実践しようとした行動力は成長の証。「忘れた」と正直に報告できる自己観察力と信頼関係が育っている。',next_focus:'固定マインドセットがいつ頃から形成されたか。過去の具体的な経験（失敗体験・他者からの評価）を探り、信念の根拠を検証するプロセスへ進みたい。',worksheet_q:['「才能がある」と言われたとき、どんな気持ちがしますか？','練習で上手くなったと感じた具体的な場面を1つ教えてください。','もし「能力は練習で変わる」が本当だとしたら、今の練習で何が変わると思いますか？','自分に一番厳しいのはどんな場面ですか？']}
+  ],
+  c2: [
+    {key_moment:'「スタートが失敗すると残りのレースが台無し」という言葉が今回の核心。レース全体を「スタートで決まる一発勝負」として捉えていることがわかった。この認知パターンがレース前の過緊張を生み出している可能性が高い。',client_belief:'「1つの失敗が全体を無効にする」という二項対立的な思考パターンがある。成功か失敗かの二択でレースを評価しており、回復力（レジリエンス）の発揮を阻害している。',progress:'自分の思考パターンに気づき始めており、「スタートへの依存度が高い」と自己分析できている。気づきの言語化能力は高い。',next_focus:'スタートがうまくいったときの心理状態と、失敗したときの心理状態の具体的な違いを記録してもらう。「失敗後に立て直せた」経験が過去にあるかを探る。',worksheet_q:['スタートが失敗した後、最もうまく対処できたレースはいつですか？そのとき何が違いましたか？','レースを「スタート・前半・後半・ゴール」の4つに分けると、どのセクションが一番楽しいですか？','完璧なスタートができなくても良いレースができるとしたら、それはどんな状態だと思いますか？']}
+  ],
+  c3: [
+    {key_moment:'「勝ったのに素直に喜べない」という状態の背景に、成功体験を即座に無効化するメカニズムがあることが見えてきた。「相手が弱かった」「たまたま」という言葉が自動的に出てくるパターンは、自己評価を守るための防衛機制である可能性がある。',client_belief:'「自分の実力で勝ってはいけない」あるいは「喜ぶと次に失敗したとき傷つく」という予防的な信念を持っている可能性がある。自己評価の基準が完全に外部（結果・他者評価）に置かれている。',progress:'自分の評価パターンに気づいており、「良い部分を見つけるのが苦手」と正確に自己分析できている。問題の認識は非常に明確。',next_focus:'「たまたま」「相手が弱かった」という言葉が出たとき、その直後に何を感じているかを詳しく探る。過去に「素直に喜べた」経験があるかを確認する。',worksheet_q:['今日の練習で「自分がうまくやれた」と感じた瞬間を1つ具体的に教えてください。','「これは実力だ」と感じられる成功はどんな条件が揃ったときですか？','もし親しい友人が同じ成績を出したら、あなたは何と言いますか？','5年後の自分から見て、今の自分はどんな成長をしていると思いますか？']}
+  ]
+};
+
+function generateSessionAI(sessionId){
+  const c=CLIENTS[COACH_CID];
+  const s=c.sessions.find(x=>x.id===sessionId);
+  if(!s)return;
+  const area=document.getElementById(`si-ai-${sessionId}`);
+  if(!area)return;
+
+  // ローディング演出
+  area.innerHTML=`<div class="ai-generating"><div class="ai-dots"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div><div class="ai-gen-text">このセッションを分析中…</div></div>`;
+
+  setTimeout(()=>{
+    // クライアントとセッション番号に応じてモックを選択
+    const mocks=SESSION_AI_MOCKS[COACH_CID]||SESSION_AI_MOCKS['c1'];
+    const idx=c.sessions.findIndex(x=>x.id===sessionId);
+    const mock=mocks[idx%mocks.length]||mocks[0];
+    s.aiCache=mock;
+    area.innerHTML=renderSessionAIResult(mock);
+  },1200);
+}
+
+function renderSessionAIResult(d){
+  return`<div style="background:var(--ai-bg);border:1px solid var(--ai-bd);border-radius:var(--r);padding:14px;margin-top:10px">
+    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ai-text);margin-bottom:12px;display:flex;align-items:center;gap:6px">✦ AI分析結果</div>
+    <div style="display:grid;gap:8px">
+      ${d.key_moment?`<div style="background:white;border-radius:var(--r);padding:11px 13px;border-left:3px solid var(--ai)"><div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ai-text);margin-bottom:4px">重要な転換点</div><div style="font-size:13px;color:var(--text2);line-height:1.7">${d.key_moment}</div></div>`:''}
+      ${d.client_belief?`<div style="background:white;border-radius:var(--r);padding:11px 13px;border-left:3px solid var(--morning)"><div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--morning);margin-bottom:4px">見え隠れする信念</div><div style="font-size:13px;color:var(--text2);line-height:1.7">${d.client_belief}</div></div>`:''}
+      ${d.progress?`<div style="background:white;border-radius:var(--r);padding:11px 13px;border-left:3px solid var(--g500)"><div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--g600);margin-bottom:4px">変化・成長</div><div style="font-size:13px;color:var(--text2);line-height:1.7">${d.progress}</div></div>`:''}
+      ${d.next_focus?`<div style="background:white;border-radius:var(--r);padding:11px 13px;border-left:3px solid var(--evening)"><div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--evening);margin-bottom:4px">次回の焦点</div><div style="font-size:13px;color:var(--text2);line-height:1.7">${d.next_focus}</div></div>`:''}
+      ${d.worksheet_q?.length?`<div style="background:white;border-radius:var(--r);padding:11px 13px"><div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ai-text);margin-bottom:8px">次回の深掘り質問</div>${d.worksheet_q.map((q,i)=>`<div style="display:flex;gap:8px;margin-bottom:6px"><span style="width:20px;height:20px;border-radius:50%;background:var(--ai);color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</span><span style="font-size:13px;color:var(--text);line-height:1.6">${q}</span></div>`).join('')}</div>`:''}
+    </div>
+  </div>`;
+}
+
+/* ── AI: 全セッション横断パターン分析（モック） ── */
+const PATTERN_MOCKS = {
+  c1:{
+    overall_arc:'田中選手は第1回セッションから「ミス後の感情の嵐」という明確な課題を抱えてスタートした。第2回では3秒ルーティンを実践しようとする行動力を見せ、同時に「能力は固定されている」という固定マインドセットの存在が浮かび上がった。まだ2回のセッションだが、自己観察力と言語化能力の高さは際立っており、変化への準備が整い始めている段階と言える。',
+    recurring_patterns:[
+      {title:'自己批判の自動化',description:'ミスや失敗の直後に「自分はダメだ」という自己批判が自動的に起動するパターンが繰り返し確認されている。これは長年の習慣として刷り込まれており、意識的な介入がなければ自動的に作動し続ける。',sessions:'第1回・第2回',coaching_point:'このパターンを「敵」と捉えず、「これまで自分を守ってきたシステム」として中立的に見られるよう促すことが次のステップ。'},
+      {title:'固定マインドセット',description:'「能力は生まれつき決まっている」という信念が、練習や失敗への意味づけに大きく影響している。努力を「能力のなさを補う苦しい行為」と捉えている可能性がある。',sessions:'第2回で明確に表出',coaching_point:'過去に「練習で確実に上手くなった」という体験を丁寧に拾い上げ、本人が自分で「成長マインドセット」の証拠を発見できるよう促す。'},
+    ],
+    growth_points:['感情と行動のつながりを自分で観察・言語化できるようになってきた','ルーティンを「やってみよう」と行動に移した主体性が育っている','コーチとの対話で「正直に言える」信頼関係が構築されてきた'],
+    core_theme:'表面的な「集中力」の問題の奥に、「失敗＝自分の価値の低下」という深い信念がある。この信念を揺さぶり、「失敗は情報であり、能力とは別物だ」という新しい視点を内側から育てることがこの取り組みの本質的なテーマになっている。',
+    next_session_prep:{
+      hypothesis:'固定マインドセットの形成に関わる過去の経験（親・コーチからの評価、転機となった失敗など）を探ることで、信念の「根拠」を検証するプロセスに入れる可能性がある。また日々の記録からは後半の集中力低下が継続しており、疲労管理と感情管理の連動についても触れたい。',
+      questions:['バスケを始めた頃、「上手い・下手」についてどんなことを言われましたか？','今まで一番「成長した」と感じた経験を教えてください。そのとき何が変わりましたか？','試合後半に気持ちが落ちるとき、体の中でどんな変化が起きていますか？','「自分はやればできる」と感じた最後の瞬間はいつですか？'],
+      caution:'固定マインドセットの探索は過去の傷つきに触れる可能性がある。急がず、本人のペースに合わせて深めること。成長マインドセットを「正解」として押し付けないよう注意。'
+    },
+    client_report_summary:'田中選手、この2週間で大きな一歩を踏み出せています。ミスの後に「頭が真っ白になる」という状態を自分で気づき、言葉にできたこと自体が非常に重要な進歩です。3秒ルーティンを実践しようとした行動力も、確実に変化に向かっている証です。これからのセッションでは、あなたがすでに持っている強さ——高い観察力と正直さ——を武器に、感情との新しい付き合い方を一緒に探っていきましょう。'
+  },
+  c2:{
+    overall_arc:'佐藤選手はスタートへの過度な依存という明確なパターンを持ってセッションに臨んだ。1回のセッションで、この依存の背景に「一発勝負思考」があることが浮かび上がり、レースをセクションに分けるリフレーミングを試みた。自己分析能力が高く、変化への意欲も感じられる。',
+    recurring_patterns:[
+      {title:'一発勝負思考',description:'スタートの成否がレース全体を決定するという強固な信念を持っている。これは過去の成功体験（スタートが良いとタイムが出た）から強化されてきた可能性がある。',sessions:'第1回で明確に確認',coaching_point:'「スタートが良かった日でもタイムが悪かった日」「スタートが悪かったのに盛り返せた日」という反例を本人に探してもらう作業が有効。'},
+      {title:'休息への罪悪感',description:'オフ日や回復日に「何もしていない」という焦りが出てくるパターンが日々の記録から確認できる。これはアスリートとしての自己価値を活動量と結びつけている可能性がある。',sessions:'日々の記録に繰り返し登場',coaching_point:'回復を「何もしないこと」ではなく「次のパフォーマンスへの投資」として意味づけを変えるアプローチが有効かもしれない。'},
+    ],
+    growth_points:['タイムが出なかった原因を感情的にならず分析できるようになった','スタートへの依存という自分のパターンに気づき言語化できた','長距離練習で「粘れる自分」への小さな自信が芽生えている'],
+    core_theme:'スタートという「コントロールできる一点」に過剰に依存することで、レース全体の流れの中で自分を見失っている。本質的なテーマは「コントロールできないことへの対処」と「自分の実力への信頼（セルフトラスト）」の構築である。',
+    next_session_prep:{
+      hypothesis:'スタートへの依存と休息への罪悪感は、どちらも「自分への信頼の低さ」という共通の根を持っている可能性がある。自己信頼のテーマとして統合して深めることで、より本質的な変化につながるかもしれない。',
+      questions:['スタートが失敗した後、最もうまく立て直せたレースはいつですか？そのときの気持ちを詳しく聞かせてください。','「自分は本番に強い」と感じた経験はありますか？','完全に回復した状態で泳いだとき、体がどう感じるかを言葉にしてみてください。','もし「スタート」のことを一切考えずにレースできたら、何を考えて泳ぎますか？'],
+      caution:'セルフトラストの探索は、過去の失敗体験や他者からの評価に触れることがある。急かさず、佐藤選手が自分のペースで気づきを深められる余白を持ってセッションを設計すること。'
+    },
+    client_report_summary:'佐藤選手、タイムが出なかったときに感情的にならず「疲れが原因」と冷静に分析できたこと、これはとても大きな成長です。以前であれば引きずっていたかもしれない場面で、あなたは確実に変わり始めています。スタートに頼りすぎる自分のパターンにも気づけました。これからのセッションでは、あなたの中にある「泳ぐ力」への信頼を一緒に育てていきましょう。'
+  },
+  c3:{
+    overall_arc:'山本選手は「勝っても喜べない」という自己評価の問題を持ってセッションに臨んだ。成功体験を即座に無効化するメカニズムがあることが明らかになり、「証拠を集める」アプローチを実践し始めた段階にある。まだ初期のセッションだが、問題の認識は非常に明確で変化への準備が整っている。',
+    recurring_patterns:[
+      {title:'成功の無効化',description:'良い結果が出ても「たまたま」「相手が弱かっただけ」と即座に理由をつけて成功体験の価値を下げるパターンが繰り返し確認されている。これは自己評価の基準が完全に外部に置かれていることを示している。',sessions:'第1回・第2回で確認',coaching_point:'このパターンが「失望から自分を守るための防衛機制」である可能性を、責めずに探っていく。「防衛してくれてありがとう、でも今は別の方法を試せる」という視点へ。'},
+      {title:'外部評価依存',description:'コーチや対戦相手など外部からの評価に感情が大きく左右される。良い評価では一時的にモチベが上がるが、それが「自分の実力」とは紐づかない。',sessions:'日々の記録と第1・2回セッションで一貫して見られる',coaching_point:'「内部評価軸」（自分が決めた基準での評価）を少しずつ育てることが長期的なゴール。まず「今日の自分なりのベスト」という概念を一緒に作っていく。'},
+    ],
+    growth_points:['自分の評価パターンに気づき、正確に言語化できている','「証拠を集める」課題に取り組もうとする意欲がある','スパーリングでプロセスへの注目ができ始めた（「良い判断ができた場面が増えた」という気づき）'],
+    core_theme:'結果や他者評価に自己価値を委ねてきた長年のパターンがある。本質的なテーマは「自分の内側に評価の軸を持つこと」——外側の結果がどうであれ、自分が自分を認められる安定した基盤を築くことである。',
+    next_session_prep:{
+      hypothesis:'「褒められても信じられない」「勝っても喜べない」という状態の背景に、「本当に喜んだらまた傷つく」という自己防衛がある可能性がある。喜ぶことへの恐れ、もしくは期待に応えられないことへの恐れを探ることで、次のステージに進めるかもしれない。',
+      questions:['子どもの頃、テニスで「うまくいった」と感じたとき、誰かに伝えましたか？そのときどんな反応がありましたか？','「これは本当に自分の力だ」と感じた瞬間を、過去に一度でも経験したことはありますか？','もし結果を誰にも報告しなくていいとしたら、今日の試合を自分でどう評価しますか？','あなたにとって「良いテニス」の日とはどんな状態ですか？（勝敗抜きで）'],
+      caution:'自己防衛パターンへの探索は、過去の傷つき体験（特に評価に関するもの）に触れる可能性がある。山本選手が安心して話せる環境を丁寧に作りながら、急がずに進めること。'
+    },
+    client_report_summary:'山本選手、この数週間で「自分の評価パターン」に気づくという、非常に難しい一歩を踏み出せました。多くの人はこのパターンに気づかないまま過ごすのに、あなたはすでにそこに光を当てています。スパーリングで「良い判断ができた場面に気づけた」という変化は、確実に内側の評価軸が育ち始めているサインです。これからのセッションで、あなたが自分自身の最大の応援者になれるよう一緒に歩んでいきましょう。'
+  }
+};
+
+function generatePattern(force){
+  const c=CLIENTS[COACH_CID];
+  if(!c.sessions.length){toast('セッションメモがまだありません');return;}
+  if(RPT_CACHE[COACH_CID]&&!force){document.getElementById('pattern-result').innerHTML=renderPattern(RPT_CACHE[COACH_CID]);return;}
+  const btn=document.getElementById('pattern-btn');
+  if(btn)btn.disabled=true;
+  document.getElementById('pattern-result').innerHTML=`<div class="ai-generating"><div class="ai-dots"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div><div class="ai-gen-text">全セッションを横断分析しています…</div></div>`;
+
+  setTimeout(()=>{
+    const mock=PATTERN_MOCKS[COACH_CID]||PATTERN_MOCKS['c1'];
+    RPT_CACHE[COACH_CID]=mock;
+    document.getElementById('pattern-result').innerHTML=renderPattern(mock);
+    if(btn){btn.disabled=false;btn.textContent='再生成';}
+  },1800);
+}
+
+function renderPattern(d){
+  const patterns=(d.recurring_patterns||[]).map(p=>`
+    <div class="pattern-card">
+      <div class="pattern-card-title">${p.title}</div>
+      <div class="pattern-card-text">${p.description}</div>
+      ${p.sessions?`<div class="pattern-card-sessions">📌 ${p.sessions}で確認</div>`:''}
+      ${p.coaching_point?`<div style="margin-top:8px;padding:7px 10px;background:var(--ai-bg);border-radius:var(--r);font-size:12px;color:var(--ai-text)">💡 ${p.coaching_point}</div>`:''}
+    </div>`).join('');
+  const growths=(d.growth_points||[]).map(g=>`<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px"><span style="color:var(--g500);font-size:16px;flex-shrink:0">✓</span><span style="font-size:13px;color:var(--text2);line-height:1.7">${g}</span></div>`).join('');
+  const qs=(d.next_session_prep?.questions||[]).map((q,i)=>`<div class="ws-question"><div class="ws-q-num">${i+1}</div><div class="ws-q-text">${q}</div></div>`).join('');
+
+  return`
+<div class="ai-section">
+  <div class="ai-section-title"><span class="ai-section-icon">🌱</span>全体の変化・成長の軌跡</div>
+  <div class="report-item"><div class="report-item-text">${d.overall_arc||'—'}</div></div>
+</div>
+<div class="ai-section">
+  <div class="ai-section-title"><span class="ai-section-icon">🔄</span>繰り返し見られるパターン</div>
+  <div class="issue-list">${patterns}</div>
+</div>
+<div class="ai-section">
+  <div class="ai-section-title"><span class="ai-section-icon">✅</span>成長・変化のポイント</div>
+  <div style="background:white;border:1px solid var(--border);border-radius:var(--r);padding:14px 16px">${growths}</div>
+</div>
+${d.core_theme?`<div class="ai-section"><div class="ai-section-title"><span class="ai-section-icon">🎯</span>本質的なテーマ</div><div class="report-item"><div class="report-item-text">${d.core_theme}</div></div></div>`:''}
+<div class="ai-section">
+  <div class="ai-section-title"><span class="ai-section-icon">📝</span>次回セッション準備</div>
+  ${d.next_session_prep?.hypothesis?`<div class="report-item" style="margin-bottom:12px"><div class="report-item-label">仮説</div><div class="report-item-text">${d.next_session_prep.hypothesis}</div></div>`:''}
+  ${qs}
+  ${d.next_session_prep?.caution?`<div style="padding:10px 14px;background:#fff7ee;border:1px solid var(--morning-bd);border-radius:var(--r);font-size:12px;color:var(--morning);margin-top:10px"><span style="font-weight:700">⚠ 注意：</span>${d.next_session_prep.caution}</div>`:''}
+</div>
+${d.client_report_summary?`<div class="ai-section"><div class="ai-section-title"><span class="ai-section-icon">📄</span>クライアント向け成長レポート（共有用）</div><div style="background:white;border:1px solid var(--g200);border-radius:var(--r);padding:16px;border-left:4px solid var(--g500)"><div style="font-size:13px;color:var(--text);line-height:1.85;">${d.client_report_summary}</div></div></div>`:''}`;
+}
+
+/* ══ AI SESSION PREP PAGE ══ */
+async function pgAI(m){
+  if(!CLIENTS[COACH_CID]?.loaded && !CU.demo){
+    m.innerHTML=`<div style="padding:60px;text-align:center;color:var(--text3)"><div class="ai-dots" style="justify-content:center;margin-bottom:12px"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div><div style="font-size:13px">データを読み込んでいます…</div></div>`;
+    await loadClientData(COACH_CID);
+  }
+  const tabs=Object.entries(CLIENTS).map(([id,cl])=>`<button class="ctab ${id===COACH_CID?'active':''}" onclick="COACH_CID='${id}';pgAI(document.getElementById('main'))">${cl.name}</button>`).join('');
+  const c=CLIENTS[COACH_CID],days=Math.max(0,Math.ceil((new Date(c.next)-new Date())/86400000));
+  const hasCached=!!AI_CACHE[COACH_CID];
+  m.innerHTML=`
+<div class="ph"><div><div class="ph-title">AI セッション準備</div><div class="ph-sub">記録をもとに本質的な課題とワークシートを自動生成</div></div></div>
+<div class="privacy-bar">🔒 クライアント情報は完全分離。他のクライアントは互いを知りません。</div>
+<div class="client-tabs">${tabs}</div>
+<div class="theme-box"><div class="theme-icon"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01z"/></svg></div><div><div class="theme-label">${c.name}（${c.sport}）— 次回まであと ${days} 日</div><div class="theme-text">${c.theme}</div></div></div>
+<div class="ai-panel"><div class="ai-panel-head"><div class="ai-panel-title"><div class="ai-star"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg></div>AI 分析 — ${c.name}さんのセッション準備資料</div><div style="display:flex;align-items:center;gap:10px"><span class="ai-badge">Claude AI</span><button class="btn btn-ai btn-sm" onclick="generateAI('${COACH_CID}',true)" id="gen-btn">${hasCached?'再生成':'✦ 生成する'}</button></div></div><div class="ai-panel-body" id="ai-result">${hasCached?renderAIResult(AI_CACHE[COACH_CID]):`<div style="text-align:center;padding:32px;color:var(--text3)"><div style="font-size:36px;margin-bottom:12px">✦</div><div style="font-size:14px;font-weight:500;margin-bottom:6px;color:var(--ai-text)">AIによる自動分析</div><div style="font-size:13px;line-height:1.7">${c.name}さんの全記録（目標・行動・感情・気づき）を読み込み、<br>本質的な課題の抽出とセッション用ワークシートを生成します。</div><div style="margin-top:20px"><button class="btn btn-ai" onclick="generateAI('${COACH_CID}',false)">✦ セッション準備資料を生成する</button></div></div>`}</div></div>`;
+}
+
+/* ── AI: セッション準備（モック） ── */
+const AI_PREP_MOCKS = {
+  c1:{
+    summary:{
+      positive_change:'ミス直後の切り替えが以前より早くなってきた場面が記録に複数回見られる。試合モードへの入り方が早くなったという本人の気づきもあり、集中力の立ち上がりに改善の兆しがある。',
+      pattern:'後半になるにつれて焦りが出て、判断が早まるという繰り返しパターンが続いている。「冷静な時は動けている」という記述が複数回あり、感情状態がパフォーマンスに直結していることを本人も認識し始めている。',
+      mood_trend:'朝の気分は5〜8の間で推移しており、練習内容や前日の出来事に左右されやすい。夜のメンタルスコアは朝より全体的に低く、1日の疲労と反省が影響していると思われる。',
+      theme_progress:'「試合中の集中力と感情のコントロール」というテーマに対して、記録の中で感情と行動を丁寧に分けて振り返れている。自己観察の精度が上がっており、次のセッションでより深い探索が可能になってきた。'
+    },
+    core_issues:[
+      {title:'後半の焦りトリガー',description:'試合・練習の後半で焦りが生じ、判断速度が上がって精度が落ちるというパターンが複数回記録されている。このトリガーが何かを特定できていないため、対処が後手に回っている。疲労・スコア状況・コーチの視線など複数の要因が絡んでいる可能性がある。',evidence:'「後半に焦りが出て集中力が落ちた感覚」「ターンオーバーの場面で焦って判断が早まった」という記述が繰り返し登場している。'},
+      {title:'自己評価の振れ幅',description:'うまくいった日は気分が高く、うまくいかない日は落ち込みが大きいというパターンが見られる。パフォーマンスと自己評価が直結しており、安定した自信の基盤がまだ育っていない可能性がある。諦めずに続けた日（ドリブル練習）は高いスコアを示しており、プロセスへの着目が自己評価を安定させる鍵かもしれない。',evidence:'シュート成功率が低い日（気分5〜6）と、新しいムーブを習得した日（気分8）の落差が大きい。'},
+    ],
+    worksheet:[
+      {question:'試合後半で焦りを感じ始めるとき、体の中で最初に変化するのはどこですか？',intent:'焦りの身体的サインを特定し、早期キャッチのきっかけにする。'},
+      {question:'「冷静に動けている」と感じるときと、そうでないときの違いは何だと思いますか？',intent:'パフォーマンスの質に関わる内的状態の違いを言語化する。'},
+      {question:'諦めずにドリブル練習を続けられたとき、自分の中で何が起きていましたか？',intent:'成功体験の構造を探り、他の場面へ応用できる要素を見つける。'},
+      {question:'もし後半の自分に一言声をかけるとしたら、何と言いますか？',intent:'自己コーチング能力を育て、試合中に使えるセルフトークを見つける。'},
+    ]
+  },
+  c2:{
+    summary:{
+      positive_change:'タイムが出なかったときに「疲れが原因」と冷静に分析できた場面は、以前との大きな変化の証。模擬レースでスタートが安定してきており、技術的な自信も少しずつ積み上がっている。',
+      pattern:'スタートの成否でその日全体のメンタル状態が決まってしまうパターンが継続している。また休息日に「罪悪感」や「焦り」が出るパターンも日々の記録から繰り返し確認できる。',
+      mood_trend:'スタートがうまくいった日（気分8）とレスト日（気分6）の差が明確。練習の充実感がスコアに直結しており、活動量と自己評価が結びついている可能性がある。',
+      theme_progress:'レース前の緊張マネジメントというテーマに対して、緊張の根源がスタートへの過依存にあることが徐々に明確になってきた。リフレーミングの素地が育ってきている段階。'
+    },
+    core_issues:[
+      {title:'スタート依存',description:'スタートの成否がレース全体の感情的評価を決定してしまうパターンが強固に存在している。スタートが良い＝今日は良い日、という単純化が起きており、後半の粘りや回復力を活かせていない可能性がある。',evidence:'「スタートがうまくいくと全体リズムが乗る。逆にミスると最後まで引きずる」という直接的な自己観察が記録されている。'},
+      {title:'回復への罪悪感',description:'休息日に焦りや罪悪感が生じるパターンが複数回記録されている。アスリートとしての自己価値が活動量や練習量と結びついており、休むこと自体を「失点」と感じている可能性がある。',evidence:'「休むことへの罪悪感がまだある。何もしないと焦る気持ち」という記述が繰り返し登場している。'},
+    ],
+    worksheet:[
+      {question:'スタートが少し悪くても最終的に良いタイムが出た経験はありますか？そのとき何が起きていましたか？',intent:'スタート以外の要因でパフォーマンスが決まる体験を想起させる。'},
+      {question:'レースを4つのセクションで捉えたとき、どこが一番「自分らしさ」が出ると思いますか？',intent:'スタート以外の強みを言語化し、依存を分散させる。'},
+      {question:'完全に回復できた状態で泳いだ後、体はどんな感覚でしたか？',intent:'回復の価値を身体感覚から再認識させる。'},
+      {question:'「休んでいる間も、体は準備している」という考え方はどう感じますか？',intent:'休息の意味づけを変えるリフレーミングの探索。'},
+    ]
+  },
+  c3:{
+    summary:{
+      positive_change:'スパーリングで「良い判断ができた場面が増えた」という気づきが生まれており、プロセスへの注目が少しずつできるようになってきた。記録の中で「うまくいったこと」を探そうとする姿勢の変化が見られる。',
+      pattern:'良い結果が出ても「たまたま」「相手が弱かった」と即座に価値を下げる成功の無効化パターンが繰り返し確認されている。また外部評価（コーチのFB・試合結果）に感情が大きく左右されるパターンも継続している。',
+      mood_trend:'勝利した日でもスコアが高くならない（6どまり）という特徴的なパターンがある。外部結果と内的充実感が一致していない状態が続いている。',
+      theme_progress:'「自己評価のブレを小さくする」というテーマの核心部分——成功体験を自分のものとして受け取れない——という問題が明確になってきた。証拠集めのアプローチを始めた段階。'
+    },
+    core_issues:[
+      {title:'成功の自己否定',description:'良い結果や評価を「自分の実力ではない」と即座に否定するパターンが一貫して見られる。これは自己評価の基準が完全に外部に置かれており、内側からの自己承認の回路が機能していない状態を示している。',evidence:'「勝ったのにDFが気になって素直に喜べなかった」「褒められても『たまたま』と思ってしまう」という記述が複数回登場している。'},
+      {title:'外部評価依存',description:'コーチのフィードバックや試合結果など外部からの評価に感情が大きく左右される。良い評価では一時的にモチベが上がるが、それが「自分の実力への信頼」とは結びついていない。',evidence:'「コーチより『フォーム安定してきた』とFBをもらいモチベが上がった」という記述が示すように、評価の源泉が外部にある。'},
+    ],
+    worksheet:[
+      {question:'今日の練習で「自分がうまくやれた」と感じた瞬間を1つ、具体的に教えてください。',intent:'結果ではなくプロセス・行動レベルの成功体験に注目する習慣をつける。'},
+      {question:'「たまたまじゃない、自分の力だ」と感じた瞬間が過去に一度でもありましたか？',intent:'内部評価軸が働いた経験を想起させ、その構造を探る。'},
+      {question:'もし親友が同じ試合結果を出したら、あなたはどう声をかけますか？',intent:'自分への評価と他者への評価の差異に気づかせるセルフコンパッションのアプローチ。'},
+      {question:'「結果抜きで良いテニスをした」と感じる日はどんな日ですか？',intent:'内部評価軸（プロセス・感覚）の基準を自分で作ってもらう。'},
+    ]
+  }
+};
+
+function generateAI(cid,force){
+  if(AI_CACHE[cid]&&!force){document.getElementById('ai-result').innerHTML=renderAIResult(AI_CACHE[cid]);return;}
+  const btn=document.getElementById('gen-btn');if(btn)btn.disabled=true;
+  document.getElementById('ai-result').innerHTML=`<div class="ai-generating"><div class="ai-dots"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div><div class="ai-gen-text">クライアントの記録を分析しています…</div></div>`;
+
+  setTimeout(()=>{
+    const mock=AI_PREP_MOCKS[cid]||AI_PREP_MOCKS['c1'];
+    AI_CACHE[cid]=mock;
+    document.getElementById('ai-result').innerHTML=renderAIResult(mock);
+    if(btn){btn.disabled=false;btn.textContent='再生成';}
+  },1500);
+}
+
+function renderAIResult(data){
+  const summaryItems=[{label:'ポジティブな変化',icon:'✅',color:'var(--g600)',text:data.summary?.positive_change},{label:'繰り返しのパターン',icon:'🔄',color:'var(--morning)',text:data.summary?.pattern},{label:'メンタルスコアの傾向',icon:'📈',color:'var(--evening)',text:data.summary?.mood_trend},{label:'テーマへの取り組み',icon:'🎯',color:'var(--ai-text)',text:data.summary?.theme_progress}].filter(x=>x.text);
+  const issueCards=(data.core_issues||[]).map(issue=>`<div class="issue-card"><div class="issue-card-title">${issue.title}</div><div class="issue-card-body">${issue.description}</div>${issue.evidence?`<div class="issue-card-evidence">📌 根拠: ${issue.evidence}</div>`:''}</div>`).join('');
+  const wsCards=(data.worksheet||[]).map((q,i)=>`<div class="ws-question"><div class="ws-q-num">${i+1}</div><div><div class="ws-q-text">${q.question}</div>${q.intent?`<div class="ws-q-intent">→ ${q.intent}</div>`:''}</div></div>`).join('');
+  return`<div class="ai-section"><div class="ai-section-title"><span class="ai-section-icon">📊</span>2週間のサマリー</div><div class="summary-grid">${summaryItems.map(s=>`<div class="summary-item"><div class="summary-item-label" style="color:${s.color}">${s.icon} ${s.label}</div><div class="summary-item-text">${s.text}</div></div>`).join('')}</div></div><div class="ai-section"><div class="ai-section-title"><span class="ai-section-icon">🔍</span>本質的な課題</div><div class="issue-list">${issueCards}</div></div><div class="ai-section"><div class="ai-section-title"><span class="ai-section-icon">📝</span>セッション用ワークシート（深掘り質問）</div>${wsCards}</div>`;
+}
+
+/* ══ GRAPH ══ */
+function getCycles(entries){const s=[...entries].sort((a,b)=>a.date.localeCompare(b.date));const c=[];for(let i=0;i<s.length;i+=14)c.push(s.slice(i,i+14));return c;}
+function pgGraph(m,isCoach){
+  const cid=isCoach?COACH_CID:CU.id,c=CLIENTS[cid],cycles=getCycles(c.entries);
+  if(CYC>=cycles.length)CYC=Math.max(0,cycles.length-1);
+  const clientTabs=isCoach?`<div class="client-tabs">${Object.entries(CLIENTS).map(([id,cl])=>`<button class="ctab ${id===COACH_CID?'active':''}" onclick="COACH_CID='${id}';pgGraph(document.getElementById('main'),true)">${cl.name}</button>`).join('')}</div>`:'';
+  const cycBtns=cycles.map((cy,i)=>`<button class="cyc ${i===CYC?'active':''}" onclick="CYC=${i};pgGraph(document.getElementById('main'),${isCoach})">${cy[0]?.date||''}〜${cy[cy.length-1]?.date||''}</button>`).join('');
+  const data=cycles[CYC]||[],mv=data.map(e=>e.m?.mood).filter(Boolean),ev2=data.map(e=>e.e?.mood).filter(Boolean),all=[...mv,...ev2];
+  const avg=all.length?(all.reduce((s,v)=>s+v,0)/all.length).toFixed(1):'—',mx=all.length?Math.max(...all):'—',recs=data.filter(e=>e.m||e.e).length,rate=data.length?Math.round(recs/data.length*100):0,full=data.filter(e=>e.m&&e.e).length;
+  m.innerHTML=`<div class="ph"><div><div class="ph-title">${isCoach?'グラフ分析':'2週間グラフ'}</div><div class="ph-sub">気分・メンタルの推移</div></div></div>${clientTabs}<div class="cycle-btns">${cycBtns}</div><div class="stats-row"><div class="stat"><div class="stat-label">平均スコア</div><div class="stat-val">${avg}</div><div class="stat-sub">/ 10</div></div><div class="stat"><div class="stat-label">ピーク</div><div class="stat-val" style="color:var(--g400)">${mx}</div><div class="stat-sub">最高スコア</div></div><div class="stat"><div class="stat-label">記録率</div><div class="stat-val" style="color:var(--morning)">${rate}<span style="font-size:16px">%</span></div><div class="stat-sub">${recs}/${data.length}日</div></div><div class="stat"><div class="stat-label">朝夜セット</div><div class="stat-val" style="color:var(--evening)">${full}</div><div class="stat-sub">完了日数</div></div></div><div class="chart-card"><div class="chart-top"><span class="chart-ttl">${isCoach?c.name+' — ':''}気分スコア推移</span><div class="chart-legend"><div class="leg"><div class="leg-dot" style="background:var(--morning)"></div>朝</div><div class="leg"><div class="leg-dot" style="background:var(--evening)"></div>夜</div></div></div><canvas id="gc" height="200"></canvas></div>`;
+  drawGraph(data);
+}
+function drawGraph(data){
+  const cv=document.getElementById('gc');if(!cv)return;
+  const W=cv.offsetWidth||680,H=200;cv.width=W;cv.height=H;
+  const ctx=cv.getContext('2d'),P={t:16,r:16,b:32,l:32},cw=W-P.l-P.r,ch=H-P.t-P.b;
+  ctx.clearRect(0,0,W,H);
+  for(let i=1;i<=4;i++){const y=P.t+ch-(ch*i*2/10);ctx.strokeStyle='rgba(0,0,0,.055)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(P.l,y);ctx.lineTo(P.l+cw,y);ctx.stroke();ctx.fillStyle='rgba(0,0,0,.3)';ctx.font='10px DM Mono,monospace';ctx.textAlign='right';ctx.fillText(i*2,P.l-5,y+3);}
+  if(!data.length)return;
+  const xs=cw/Math.max(data.length-1,1);
+  function line(vals,color){const pts=vals.map((v,i)=>[P.l+i*xs,P.t+ch-ch*(v-1)/9]);if(pts.length<1)return;ctx.beginPath();ctx.moveTo(pts[0][0],P.t+ch);pts.forEach(([x,y])=>ctx.lineTo(x,y));ctx.lineTo(pts[pts.length-1][0],P.t+ch);ctx.closePath();const g=ctx.createLinearGradient(0,P.t,0,P.t+ch);g.addColorStop(0,color+'40');g.addColorStop(1,color+'00');ctx.fillStyle=g;ctx.fill();if(pts.length>1){ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.lineCap='round';pts.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();}pts.forEach(([x,y])=>{ctx.beginPath();ctx.arc(x,y,4.5,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();ctx.strokeStyle='white';ctx.lineWidth=2;ctx.stroke();});}
+  const mv=data.map(e=>e.m?.mood||null),ev=data.map(e=>e.e?.mood||null);
+  const mf=mv.map((v,i)=>v||ev[i]||5),ef=ev.map((v,i)=>v||mv[i]||5);
+  if(mv.some(v=>v))line(mf,'#e07c2a');if(ev.some(v=>v))line(ef,'#2a7ec0');
+  ctx.fillStyle='rgba(0,0,0,.3)';ctx.font='9px DM Mono,monospace';ctx.textAlign='center';
+  data.forEach((e,i)=>{if(data.length<=7||i%2===0)ctx.fillText(e.date.slice(5),P.l+i*xs,H-6);});
+}
+/* ══ CSV EXPORT PAGE ══ */
+function pgExport(m){
+  const tabs=Object.entries(CLIENTS).map(([id,cl])=>`
+    <button class="ctab ${id===COACH_CID?'active':''}" onclick="COACH_CID='${id}';pgExport(document.getElementById('main'))">${cl.name}</button>`).join('');
+  const c=CLIENTS[COACH_CID];
+  const entryCount=c.entries.length;
+  const sessionCount=c.sessions.length;
+  const aiReady=!!AI_CACHE[COACH_CID]||!!RPT_CACHE[COACH_CID];
+
+  m.innerHTML=`
+<div class="ph">
+  <div><div class="ph-title">CSVエクスポート</div><div class="ph-sub">Google スプレッドシートへのインポート用</div></div>
+</div>
+<div class="privacy-bar">🔒 エクスポートされるのは選択中のクライアントのデータのみです。</div>
+<div class="client-tabs">${tabs}</div>
+
+<div class="theme-box">
+  <div class="theme-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3l5 5h-3v4h-4v-4H7l5-5z"/></svg></div>
+  <div><div class="theme-label">${c.name}（${c.sport}）のエクスポート</div><div class="theme-text">${c.theme}</div></div>
+</div>
+
+<!-- How to import guide -->
+<div style="background:var(--g50);border:1px solid var(--g200);border-radius:var(--rl);padding:16px 20px;margin-bottom:20px;">
+  <div style="font-size:12px;font-weight:700;color:var(--g700);margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+    📌 Google スプレッドシートへのインポート手順
+  </div>
+  <ol style="font-size:12px;color:var(--text2);line-height:2;padding-left:18px;">
+    <li>下のボタンでCSVファイルをダウンロード</li>
+    <li>Google スプレッドシートを新規作成</li>
+    <li>メニュー「ファイル」→「インポート」→「アップロード」</li>
+    <li>「現在のシートに挿入」または「新しいシートを挿入」を選択</li>
+    <li>複数ファイルは別々のシートとしてインポートすると管理しやすいです</li>
+  </ol>
+</div>
+
+<!-- Export cards -->
+<div style="display:grid;gap:14px;">
+
+  <!-- 日々の記録 -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-title">
+        <div class="card-dot" style="background:var(--accent)"></div>
+        日々の記録
+      </div>
+      <span class="badge badge-done">${entryCount} 件</span>
+    </div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;">
+        ${['日付','朝の目標','行動計画','朝の気分','事実・出来事','解釈・感情','夜のメンタル','コーチメモ'].map(h=>`
+          <div style="background:var(--n50);border:1px solid var(--border2);border-radius:var(--r);padding:6px 10px;font-size:11px;font-weight:700;color:var(--text2);text-align:center;">${h}</div>`).join('')}
+      </div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">
+        朝の記録（目標・計画・気分）と夜の振り返り（事実・解釈・メンタル）を1行1日で記録します。
+      </div>
+      <div class="btn-row" style="padding-top:0">
+        <button class="btn btn-primary" onclick="downloadCSV('entries','${COACH_CID}')">
+          📥 日々の記録をダウンロード
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- セッションメモ -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-title">
+        <div class="card-dot" style="background:var(--session)"></div>
+        セッションメモ
+      </div>
+      <span class="badge badge-session">${sessionCount} 件</span>
+    </div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;">
+        ${['日付','テーマ','メモ本文','AI分析：転換点','AI分析：信念','AI分析：次回の焦点'].map(h=>`
+          <div style="background:var(--n50);border:1px solid var(--border2);border-radius:var(--r);padding:6px 10px;font-size:11px;font-weight:700;color:var(--text2);text-align:center;">${h}</div>`).join('')}
+      </div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">
+        セッションごとのメモと、AI分析済みの場合はその結果も含めてエクスポートします。
+      </div>
+      <div class="btn-row" style="padding-top:0">
+        <button class="btn btn-session" onclick="downloadCSV('sessions','${COACH_CID}')">
+          📥 セッションメモをダウンロード
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI分析結果 -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-title">
+        <div class="card-dot" style="background:var(--ai)"></div>
+        AI分析結果
+      </div>
+      <span class="badge" style="background:var(--ai-bg);color:var(--ai-text);border:1px solid var(--ai-bd);">${aiReady?'生成済み':'未生成'}</span>
+    </div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;">
+        ${['生成日','種別','内容サマリー','本質的な課題','深掘り質問','クライアント向けレポート'].map(h=>`
+          <div style="background:var(--n50);border:1px solid var(--border2);border-radius:var(--r);padding:6px 10px;font-size:11px;font-weight:700;color:var(--text2);text-align:center;">${h}</div>`).join('')}
+      </div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">
+        セッション準備とパターン分析のAI結果をエクスポートします。${!aiReady?'<span style="color:var(--morning)">※ まず「AI セッション準備」または「セッションメモ」でAI分析を実行してください。</span>':''}
+      </div>
+      <div class="btn-row" style="padding-top:0">
+        <button class="btn btn-ai" onclick="downloadCSV('ai','${COACH_CID}')" ${!aiReady?'disabled style="opacity:.5;cursor:not-allowed"':''}>
+          📥 AI分析結果をダウンロード
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 全データ一括 -->
+  <div style="background:linear-gradient(135deg,var(--g50),#fff);border:1.5px solid var(--g300);border-radius:var(--rl);padding:20px 22px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div>
+        <div style="font-size:14px;font-weight:700;color:var(--g700);margin-bottom:4px;">📦 全データを一括ダウンロード</div>
+        <div style="font-size:12px;color:var(--text3)">日々の記録・セッションメモ・AI分析を ZIP 形式でまとめてダウンロードします。</div>
+      </div>
+      <button class="btn btn-primary" onclick="downloadAllCSV('${COACH_CID}')" style="white-space:nowrap;">
+        📥 全データをまとめてダウンロード
+      </button>
+    </div>
+  </div>
+
+</div>`;
+}
+
+/* ── CSV生成ユーティリティ ── */
+function escCSV(v){
+  if(v==null)return'';
+  const s=String(v).replace(/\r?\n/g,' ');
+  return s.includes(',')||s.includes('"')||s.includes('\n') ? `"${s.replace(/"/g,'""')}"` : s;
+}
+function buildCSVString(headers,rows){
+  return[headers.map(escCSV).join(','),...rows.map(r=>r.map(escCSV).join(','))].join('\r\n');
+}
+function triggerDownload(csvStr,filename){
+  const bom='\uFEFF'; // BOM for Excel/Sheets Japanese
+  const blob=new Blob([bom+csvStr],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=filename;a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ── エントリーCSV ── */
+function buildEntriesCSV(cid){
+  const c=CLIENTS[cid];
+  const headers=['日付','朝の目標','行動計画','朝の気分(1-10)','事実・出来事','解釈・感情・気づき','夜のメンタル(1-10)','コーチメモ'];
+  const rows=[...c.entries].sort((a,b)=>a.date.localeCompare(b.date)).map(e=>[
+    e.date,
+    e.m?.goal||'',
+    e.m?.plan||'',
+    e.m?.mood||'',
+    e.e?.fact||'',
+    e.e?.interp||'',
+    e.e?.mood||'',
+    e.note||''
+  ]);
+  return buildCSVString(headers,rows);
+}
+
+/* ── セッションCSV ── */
+function buildSessionsCSV(cid){
+  const c=CLIENTS[cid];
+  const headers=['日付','テーマ','メモ本文','AI：重要な転換点','AI：見え隠れする信念','AI：前回からの変化','AI：次回の焦点','AI：深掘り質問1','AI：深掘り質問2','AI：深掘り質問3','追記メモ'];
+  const rows=[...c.sessions].sort((a,b)=>a.date.localeCompare(b.date)).map(s=>[
+    s.date,
+    s.theme||'',
+    s.memo||'',
+    s.aiCache?.key_moment||'',
+    s.aiCache?.client_belief||'',
+    s.aiCache?.progress||'',
+    s.aiCache?.next_focus||'',
+    s.aiCache?.worksheet_q?.[0]||'',
+    s.aiCache?.worksheet_q?.[1]||'',
+    s.aiCache?.worksheet_q?.[2]||'',
+    s.extraNote||''
+  ]);
+  return buildCSVString(headers,rows);
+}
+
+/* ── AI分析CSV ── */
+function buildAICSV(cid){
+  const c=CLIENTS[cid];
+  const rows=[];
+  const today=new Date().toISOString().slice(0,10);
+
+  // セッション準備AI
+  const prep=AI_CACHE[cid];
+  if(prep){
+    rows.push([today,'セッション準備','ポジティブな変化',prep.summary?.positive_change||'','','','']);
+    rows.push([today,'セッション準備','繰り返しパターン',prep.summary?.pattern||'','','','']);
+    rows.push([today,'セッション準備','メンタル傾向',prep.summary?.mood_trend||'','','','']);
+    rows.push([today,'セッション準備','テーマ進捗',prep.summary?.theme_progress||'','','','']);
+    (prep.core_issues||[]).forEach((issue,i)=>{
+      rows.push([today,'本質的な課題',issue.title||'',issue.description||'',issue.evidence||'','','']);
+    });
+    (prep.worksheet||[]).forEach((q,i)=>{
+      rows.push([today,'ワークシート質問',`Q${i+1}`,q.question||'',q.intent||'','','']);
+    });
+  }
+
+  // パターン分析AI
+  const ptn=RPT_CACHE[cid];
+  if(ptn){
+    rows.push([today,'パターン分析','全体の軌跡',ptn.overall_arc||'','','','']);
+    rows.push([today,'パターン分析','本質的テーマ',ptn.core_theme||'','','','']);
+    (ptn.recurring_patterns||[]).forEach(p=>{
+      rows.push([today,'繰り返しパターン',p.title||'',p.description||'',p.sessions||'',p.coaching_point||'','']);
+    });
+    (ptn.growth_points||[]).forEach((g,i)=>{
+      rows.push([today,'成長ポイント',`${i+1}`,g,'','','']);
+    });
+    (ptn.next_session_prep?.questions||[]).forEach((q,i)=>{
+      rows.push([today,'次回準備質問',`Q${i+1}`,q,'','','']);
+    });
+    if(ptn.next_session_prep?.hypothesis)
+      rows.push([today,'次回準備','仮説',ptn.next_session_prep.hypothesis,'','','']);
+    if(ptn.next_session_prep?.caution)
+      rows.push([today,'次回準備','注意点',ptn.next_session_prep.caution,'','','']);
+    if(ptn.client_report_summary)
+      rows.push([today,'クライアントレポート','要約',ptn.client_report_summary,'','','']);
+  }
+
+  const headers=['生成日','種別','項目','内容','補足1','補足2','補足3'];
+  return buildCSVString(headers,rows);
+}
+
+/* ── ダウンロード実行 ── */
+function downloadCSV(type,cid){
+  const c=CLIENTS[cid];
+  const name=c.name.replace(/\s/g,'_');
+  const today=new Date().toISOString().slice(0,10);
+
+  if(type==='entries'){
+    triggerDownload(buildEntriesCSV(cid),`MindLog_日々の記録_${name}_${today}.csv`);
+    toast('日々の記録をダウンロードしました ✓');
+  } else if(type==='sessions'){
+    triggerDownload(buildSessionsCSV(cid),`MindLog_セッションメモ_${name}_${today}.csv`);
+    toast('セッションメモをダウンロードしました ✓');
+  } else if(type==='ai'){
+    const csv=buildAICSV(cid);
+    if(!csv.split('\r\n').length>1){toast('AI分析データがありません');return;}
+    triggerDownload(csv,`MindLog_AI分析_${name}_${today}.csv`);
+    toast('AI分析結果をダウンロードしました ✓');
+  }
+}
+
+function downloadAllCSV(cid){
+  const c=CLIENTS[cid];
+  const name=c.name.replace(/\s/g,'_');
+  const today=new Date().toISOString().slice(0,10);
+  // 3ファイルを順番にダウンロード（間隔をあけて）
+  triggerDownload(buildEntriesCSV(cid),`MindLog_日々の記録_${name}_${today}.csv`);
+  setTimeout(()=>triggerDownload(buildSessionsCSV(cid),`MindLog_セッションメモ_${name}_${today}.csv`),400);
+  setTimeout(()=>{
+    const aiCsv=buildAICSV(cid);
+    if(aiCsv.split('\r\n').length>1)
+      triggerDownload(aiCsv,`MindLog_AI分析_${name}_${today}.csv`);
+  },800);
+  toast('3ファイルをダウンロードします ✓');
+}
+
+window.addEventListener('resize',()=>{if(PAGE==='graph'){const cid=CU?.role==='client'?CU.id:COACH_CID;if(cid)drawGraph((getCycles(CLIENTS[cid].entries)[CYC]||[])); }});
+</script>
+</body>
+</html>
