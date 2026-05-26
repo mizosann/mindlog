@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>マンダラチャート</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #157249;
+  --green-light: #e8f5ee;
+  --green-mid: #c8e6d4;
+  --green-dark: #0e5535;
+  --blue-light: #e8f0ff;
+  --blue-mid: #c5d8ff;
+  --gold: #c8a84b;
+  --text: #1a1a1a;
+  --text2: #555;
+  --text3: #999;
+  --border: #d0d8d4;
+  --bg: #f4f7f5;
+  --white: #fff;
+  --cell-h: 64px;
+  --radius: 4px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── ヘッダー ── */
+.app-header{background:var(--green-dark);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.app-header h1{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.12em;color:#fff}
+.app-header .sub{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.08em;margin-top:1px}
+.header-btns{display:flex;gap:6px}
+.hbtn{font-size:11px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.1);color:#fff;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.hbtn:hover{background:rgba(255,255,255,.2)}
+.hbtn.primary{background:var(--gold);border-color:var(--gold);color:#fff}
+.hbtn.primary:hover{background:#b8983b}
+
+/* ── メタ情報バー ── */
+.meta-bar{background:var(--white);border-bottom:1px solid var(--border);padding:8px 20px;display:flex;align-items:center;gap:16px;font-size:11px;color:var(--text2)}
+.meta-item{display:flex;align-items:center;gap:5px}
+.meta-dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
+
+/* ── メインエリア ── */
+.main{padding:16px 12px 40px}
+
+/* ── チャートコンテナ ── */
+.chart-container{overflow-x:auto;background:var(--white);border-radius:8px;box-shadow:0 2px 16px rgba(0,0,0,.08);border:1px solid var(--border)}
+.chart-inner{padding:12px;min-width:600px}
+
+/* ── グリッド ── */
+table{border-collapse:collapse;width:100%}
+td{width:11.11%;height:var(--cell-h);padding:2px;border:0.5px solid var(--border);position:relative;vertical-align:middle}
+td:nth-child(3n){border-right:2px solid var(--green)}
+tr:nth-child(3n) td{border-bottom:2px solid var(--green)}
+
+/* セル色 */
+.ct-center  {background:#d4eddf}
+.ct-sub     {background:#e8f5ee}
+.ct-mid-c   {background:#dce8ff}
+.ct-mid-a   {background:#eef3ff}
+.ct-corner  {background:var(--white)}
+
+/* 入力 */
+td input{
+  width:100%;height:100%;border:none;background:transparent;
+  font-size:9.5px;text-align:center;color:var(--text);
+  font-family:'Noto Sans JP',sans-serif;
+  outline:none;cursor:pointer;line-height:1.35;
+  padding:2px 3px;
+}
+td input::placeholder{color:var(--text3);font-size:8.5px}
+td:focus-within{box-shadow:inset 0 0 0 2px var(--green);border-radius:var(--radius);z-index:2}
+td.ct-center input{font-size:11px;font-weight:700;color:var(--green-dark)}
+td.ct-sub input{font-size:10px;font-weight:700;color:var(--green)}
+td.ct-mid-c input{font-size:10px;font-weight:600;color:#2a5fc8}
+
+/* ── 凡例 ── */
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;padding:0 4px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text2)}
+.legend-swatch{width:12px;height:12px;border-radius:2px;border:0.5px solid rgba(0,0,0,.1)}
+
+/* ── プログレスバー ── */
+.progress-wrap{margin-top:10px;padding:0 4px}
+.progress-label{font-size:10px;color:var(--text2);margin-bottom:4px;display:flex;justify-content:space-between}
+.progress-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--green),#2ecc71);border-radius:3px;transition:width .4s ease}
+
+/* ── モーダル ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:20px 20px 0 0;padding:24px 20px 40px;width:100%;max-width:500px}
+.modal h3{font-size:14px;font-weight:700;margin-bottom:16px;color:var(--text)}
+.modal label{font-size:11px;color:var(--text2);margin-bottom:4px;display:block}
+.modal input,.modal textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;color:var(--text);background:var(--bg);margin-bottom:12px;outline:none}
+.modal input:focus,.modal textarea:focus{border-color:var(--green)}
+.modal textarea{height:80px;resize:none}
+.modal-btns{display:flex;gap:8px;margin-top:4px}
+.modal-btns button{flex:1;padding:11px;border-radius:10px;border:1.5px solid var(--border);font-family:inherit;font-size:13px;cursor:pointer;font-weight:500;transition:all .15s}
+.modal-btns .mok{background:var(--green);color:#fff;border-color:var(--green)}
+.modal-btns .mok:hover{background:var(--green-dark)}
+.modal-btns .mcancel{background:var(--white);color:var(--text2)}
+
+/* ── セル詳細モーダル ── */
+.cell-modal{background:var(--white);border-radius:20px 20px 0 0;padding:24px 20px 40px;width:100%;max-width:500px}
+.cell-type-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 10px;border-radius:20px;margin-bottom:12px;letter-spacing:.05em}
+.cell-type-badge.center{background:#d4eddf;color:var(--green-dark)}
+.cell-type-badge.sub{background:#e8f5ee;color:var(--green)}
+.cell-type-badge.mid{background:#dce8ff;color:#2a5fc8}
+.cell-type-badge.action{background:#f0f0f0;color:#555}
+
+/* ── 印刷 ── */
+@media print{
+  body{background:white}
+  .app-header,.meta-bar,.legend,.progress-wrap,.print-hide{display:none!important}
+  .main{padding:0}
+  .chart-container{box-shadow:none;border:none;border-radius:0}
+  .chart-inner{min-width:unset;padding:4px}
+  td{height:52px}
+  td input{font-size:8px}
+  :root{--cell-h:52px}
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div>
+    <h1>MANDALA CHART</h1>
+    <div class="sub" id="meta-sub">名前・目標を設定してください</div>
+  </div>
+  <div class="header-btns">
+    <button class="hbtn print-hide" onclick="openSetup()">⚙ 設定</button>
+    <button class="hbtn print-hide" onclick="loadSample()">サンプル</button>
+    <button class="hbtn print-hide" onclick="clearAll()">クリア</button>
+    <button class="hbtn primary print-hide" onclick="window.print()">🖨 印刷・PDF保存</button>
+  </div>
+</header>
+
+<div class="meta-bar">
+  <div class="meta-item"><div class="meta-dot"></div><span id="meta-name">名前：未設定</span></div>
+  <div class="meta-item"><span id="meta-date"></span></div>
+  <div class="meta-item" style="margin-left:auto"><span id="meta-fill">0 / 81 マス入力済み</span></div>
+</div>
+
+<div class="main">
+  <div class="chart-container">
+    <div class="chart-inner">
+      <table id="mandala-table"></table>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-swatch" style="background:#d4eddf"></div>中心：大目標</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#e8f5ee"></div>8テーマ</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#dce8ff"></div>各ブロック中心</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#fff"></div>行動・具体策</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>入力進捗</span>
+      <span id="pct-label">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+</div>
+
+<!-- 設定モーダル -->
+<div class="overlay" id="setup-overlay">
+  <div class="modal">
+    <h3>チャート設定</h3>
+    <label>名前</label>
+    <input id="si-name" type="text" placeholder="例：田中 一郎" maxlength="20">
+    <label>大目標（中心マス）</label>
+    <input id="si-goal" type="text" placeholder="例：全国大会優勝" maxlength="20">
+    <label>作成日</label>
+    <input id="si-date" type="date">
+    <div class="modal-btns">
+      <button class="mcancel" onclick="closeSetup()">キャンセル</button>
+      <button class="mok" onclick="saveSetup()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- セル編集モーダル -->
+<div class="overlay" id="cell-overlay">
+  <div class="cell-modal">
+    <div id="cell-badge" class="cell-type-badge center">大目標</div>
+    <label id="cell-hint" style="font-size:12px;color:var(--text2);display:block;margin-bottom:10px"></label>
+    <input id="cell-input" type="text" placeholder="テキストを入力..." maxlength="20">
+    <div class="modal-btns">
+      <button class="mcancel" onclick="closeCell()">キャンセル</button>
+      <button class="mok" onclick="saveCell()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CELLS=Array(81).fill('');
+let META={name:'',goal:'',date:''};
+let EDIT_IDX=-1;
+
+// セルの種類を返す
+function cType(r,c){
+  const br=Math.floor(r/3),bc=Math.floor(c/3);
+  const lr=r%3,lc=c%3;
+  const center=br===1&&bc===1;
+  const innerCenter=lr===1&&lc===1;
+  if(center&&innerCenter) return 'center';
+  if(center) return 'sub';
+  if(innerCenter) return 'mid';
+  return 'action';
+}
+
+// 8方向のテーマ位置（中心ブロック内）→外ブロックの中心位置
+const THEME_POS=[
+  {sub:[3,4],mid:[1,4]},{sub:[4,3],mid:[4,1]},{sub:[5,4],mid:[7,4]},{sub:[4,5],mid:[4,7]},
+  {sub:[3,3],mid:[1,1]},{sub:[3,5],mid:[1,7]},{sub:[5,3],mid:[7,1]},{sub:[5,5],mid:[7,7]},
+];
+
+function syncThemes(){
+  THEME_POS.forEach(({sub,mid})=>{
+    const v=CELLS[sub[0]*9+sub[1]];
+    if(v) CELLS[mid[0]*9+mid[1]]=v;
+  });
+}
+
+function render(){
+  const t=document.getElementById('mandala-table');
+  t.innerHTML='';
+  for(let r=0;r<9;r++){
+    const tr=document.createElement('tr');
+    for(let c=0;c<9;c++){
+      const td=document.createElement('td');
+      const idx=r*9+c;
+      const type=cType(r,c);
+      td.className={center:'ct-center',sub:'ct-sub',mid:'ct-mid-c',action:'ct-corner'}[type];
+      if(type==='action'){
+        const br=Math.floor(r/3),bc=Math.floor(c/3);
+        if(br!==1||bc!==1) td.className='ct-mid-a';
+      }
+      const inp=document.createElement('input');
+      inp.type='text';
+      inp.value=CELLS[idx];
+      inp.placeholder=placeholder(r,c,type,idx);
+      inp.maxLength=20;
+      inp.readOnly=true;
+      inp.addEventListener('click',()=>openCell(idx,type,r,c));
+      td.appendChild(inp);
+      tr.appendChild(td);
+    }
+    t.appendChild(tr);
+  }
+  updateProgress();
+}
+
+function placeholder(r,c,type,idx){
+  if(type==='center') return '大目標';
+  if(type==='sub'){
+    const i=THEME_POS.findIndex(p=>p.sub[0]===r&&p.sub[1]===c);
+    return 'テーマ'+(i+1>=0?i+1:'');
+  }
+  if(type==='mid') return 'テーマ（自動）';
+  return '行動・具体策';
+}
+
+function updateProgress(){
+  const filled=CELLS.filter(v=>v.trim()).length;
+  const pct=Math.round(filled/81*100);
+  document.getElementById('meta-fill').textContent=filled+' / 81 マス入力済み';
+  document.getElementById('pct-label').textContent=pct+'%';
+  document.getElementById('progress-fill').style.width=pct+'%';
+}
+
+// ── セル編集 ──
+function openCell(idx,type,r,c){
+  EDIT_IDX=idx;
+  const labels={center:'大目標',sub:'テーマ',mid:'テーマ（連動）',action:'行動・具体策'};
+  const hints={
+    center:'中心に入れた目標が全体の軸になります',
+    sub:'8つのテーマが外ブロックの中心に自動コピーされます',
+    mid:'テーマから自動コピーされます（直接編集も可）',
+    action:'テーマを達成するための具体的な行動を入力してください'
+  };
+  document.getElementById('cell-badge').textContent=labels[type];
+  document.getElementById('cell-badge').className='cell-type-badge '+type;
+  document.getElementById('cell-hint').textContent=hints[type];
+  document.getElementById('cell-input').value=CELLS[idx];
+  document.getElementById('cell-input').placeholder=placeholder(r,c,type,idx);
+  document.getElementById('cell-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('cell-input').focus(),100);
+}
+function closeCell(){document.getElementById('cell-overlay').classList.remove('open');}
+function saveCell(){
+  CELLS[EDIT_IDX]=document.getElementById('cell-input').value.trim();
+  // 中心 → 大目標に同期
+  if(EDIT_IDX===40) META.goal=CELLS[40];
+  // テーマ → 外ブロック中心に同期
+  const themeIdx=THEME_POS.findIndex(p=>p.sub[0]===Math.floor(EDIT_IDX/9)&&p.sub[1]===EDIT_IDX%9);
+  if(themeIdx>=0) syncThemes();
+  closeCell();
+  render();
+  updateMeta();
+}
+
+// ── 設定 ──
+function openSetup(){
+  document.getElementById('si-name').value=META.name;
+  document.getElementById('si-goal').value=META.goal||CELLS[40];
+  document.getElementById('si-date').value=META.date||new Date().toISOString().slice(0,10);
+  document.getElementById('setup-overlay').classList.add('open');
+}
+function closeSetup(){document.getElementById('setup-overlay').classList.remove('open');}
+function saveSetup(){
+  META.name=document.getElementById('si-name').value.trim();
+  META.goal=document.getElementById('si-goal').value.trim();
+  META.date=document.getElementById('si-date').value;
+  if(META.goal&&!CELLS[40]) CELLS[40]=META.goal;
+  closeSetup();render();updateMeta();
+}
+function updateMeta(){
+  document.getElementById('meta-name').textContent='名前：'+(META.name||'未設定');
+  document.getElementById('meta-sub').textContent=
+    (META.name?META.name+' ':'')+(META.goal?'｜ 目標：'+META.goal:'目標を設定してください');
+  document.getElementById('meta-date').textContent=META.date?
+    new Date(META.date+'T12:00:00').toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric'}):'';
+}
+
+// ── クリア ──
+function clearAll(){
+  if(!confirm('すべてクリアしますか？')) return;
+  CELLS.fill('');META={name:'',goal:'',date:''};
+  render();updateMeta();
+}
+
+// ── LocalStorage保存・復元 ──
+function saveLS(){
+  localStorage.setItem('mandala_cells',JSON.stringify(CELLS));
+  localStorage.setItem('mandala_meta',JSON.stringify(META));
+}
+function loadLS(){
+  try{
+    const c=localStorage.getItem('mandala_cells');
+    const m=localStorage.getItem('mandala_meta');
+    if(c){const arr=JSON.parse(c);arr.forEach((v,i)=>CELLS[i]=v);}
+    if(m){const mo=JSON.parse(m);Object.assign(META,mo);}
+  }catch(e){}
+}
+
+// ── サンプルデータ ──
+function loadSample(){
+  if(!confirm('サンプルデータを読み込みますか？\n現在の入力は消えます。'))return;
+  const s=[
+    // 中心
+    [40,'全国大会優勝'],
+    // 8テーマ
+    [30,'メンタル強化'],[31,'技術向上'],[32,'体力強化'],
+    [39,'栄養管理'],[41,'チームワーク'],
+    [48,'休養・回復'],[49,'戦術理解'],[50,'目標管理'],
+    // メンタルブロック（[1,1]）
+    [0,'セルフトーク'],[1,'呼吸法'],[2,'ルーティン'],
+    [9,'イメトレ'],[11,'切り替え'],
+    [18,'集中力'],[19,'感情管理'],[20,'自己分析'],
+    // 技術ブロック（[1,4]）
+    [3,'フォーム改善'],[4,'サーブ強化'],[5,'レシーブ精度'],
+    [12,'スマッシュ'],[14,'ドロップ'],
+    [21,'試合IQ'],[22,'コース取り'],[23,'配球読み'],
+    // 体力ブロック（[1,7]）
+    [6,'筋力トレ'],[7,'有酸素運動'],[8,'柔軟性'],
+    [15,'体幹強化'],[17,'反応速度'],
+    [24,'持久力UP'],[25,'瞬発力'],[26,'怪我予防'],
+  ];
+  CELLS.fill('');
+  s.forEach(([i,v])=>CELLS[i]=v);
+  META={name:'サンプル 太郎',goal:'全国大会優勝',date:new Date().toISOString().slice(0,10)};
+  syncThemes();render();updateMeta();
+}
+
+// セル変更時に自動保存
+setInterval(saveLS,3000);
+
+// ── 初期化 ──
+loadLS();
+render();
+updateMeta();
+// 日付の初期値
+document.getElementById('si-date').value=META.date||new Date().toISOString().slice(0,10);
+// 初回は設定モーダルを表示
+if(!META.name&&!CELLS[40]){
+  setTimeout(openSetup,500);
+}
+</script>
+</body>
+</html>
